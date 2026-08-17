@@ -1,0 +1,155 @@
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  background: var(--radar-surface);
+  border-right: 1px solid var(--radar-border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--radar-space-lg) var(--radar-space-md);
+  z-index: 50;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--radar-space-md);
+  padding: 0 var(--radar-space-xs);
+  margin-bottom: var(--radar-space-lg);
+}
+
+.radarLogo {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radar-radius-md);
+  background: var(--radar-surface-subtle);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radarCore {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--radar-accent);
+  box-shadow: var(--radar-accent-glow);
+}
+
+.radarPing {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--radar-accent);
+  opacity: 0.7;
+  animation: radarWave 2.5s infinite ease-out;
+}
+
+@keyframes radarWave {
+  0% { transform: scale(0.4); opacity: 0.8; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+}
+
+.brandTitle {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--radar-text-primary);
+}
+
+.brandSubtitle {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--radar-text-muted);
+}
+
+.nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-xs);
+  overflow-y: auto;
+}
+
+.sectionTitle {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  color: var(--radar-text-muted);
+  padding: 0 var(--radar-space-sm) var(--radar-space-xs);
+}
+
+.navList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: var(--radar-radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--radar-text-secondary);
+  transition: all var(--radar-transition-fast);
+}
+
+.navLink:hover {
+  background: var(--radar-surface-hover);
+  color: var(--radar-text-primary);
+}
+
+.active {
+  background: var(--radar-accent-subtle);
+  color: var(--radar-accent);
+  font-weight: 600;
+  border-left: 2px solid var(--radar-accent);
+}
+
+.linkText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.footer {
+  padding-top: var(--radar-space-md);
+  border-top: 1px solid var(--radar-border);
+}
+
+.systemStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--radar-success);
+  box-shadow: 0 0 6px var(--radar-success);
+}
+
+.statusText {
+  font-size: 11px;
+  color: var(--radar-text-muted);
+  font-family: var(--radar-font-mono);
+}

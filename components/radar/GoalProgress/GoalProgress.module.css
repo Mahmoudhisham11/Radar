@@ -1,0 +1,94 @@
+.container {
+  background: var(--radar-surface);
+  border: 1px solid var(--radar-border);
+  border-radius: var(--radar-radius-md);
+  padding: var(--radar-space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-sm);
+  transition: all var(--radar-transition-fast);
+}
+
+.container:hover {
+  border-color: var(--radar-border-light);
+}
+
+.topRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--radar-space-md);
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--radar-text-primary);
+}
+
+.deadline {
+  font-size: 11px;
+  color: var(--radar-text-muted);
+}
+
+.progressSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.numbersRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-family: var(--radar-font-mono);
+}
+
+.current {
+  color: var(--radar-text-primary);
+  font-weight: 600;
+}
+
+.target {
+  color: var(--radar-text-muted);
+}
+
+.progressBarBg {
+  width: 100%;
+  height: 8px;
+  background: var(--radar-surface-hover);
+  border-radius: var(--radar-radius-full);
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  border-radius: var(--radar-radius-full);
+  transition: width 0.4s ease;
+}
+
+.ahead, .on_track {
+  background: var(--radar-accent-gradient);
+}
+
+.at_risk {
+  background: var(--radar-warning);
+}
+
+.behind {
+  background: var(--radar-danger);
+}
+
+.paceNote {
+  font-size: 12px;
+  color: var(--radar-text-secondary);
+  background: var(--radar-surface-subtle);
+  padding: 4px 8px;
+  border-radius: var(--radar-radius-sm);
+}
+
+.paceLabel {
+  color: var(--radar-accent);
+  font-weight: 600;
+}

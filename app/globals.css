@@ -1,40 +1,113 @@
+/* ==============================================================================
+   RADAR — Design System & Global Styles
+   Strict Rule: Minimal global CSS (reset, base typography, tokens & variables).
+   All component-specific styling MUST use CSS Modules (*.module.css).
+   ============================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Surface & Background Palettes (Obsidian Command Center) */
+  --radar-background: #090b0e;
+  --radar-background-subtle: #0d1117;
+  --radar-surface: #13171f;
+  --radar-surface-subtle: #171c26;
+  --radar-surface-hover: #1e2433;
+  --radar-surface-active: #252e40;
+  
+  /* Borders & Dividers */
+  --radar-border: #212936;
+  --radar-border-light: #2c3647;
+  --radar-border-active: #3b475e;
+  --radar-border-glow: rgba(0, 242, 254, 0.25);
+
+  /* Typography Colors */
+  --radar-text-primary: #f0f4f8;
+  --radar-text-secondary: #94a3b8;
+  --radar-text-muted: #64748b;
+  --radar-text-inverse: #090b0e;
+
+  /* Accent & Signal Colors (RADAR Identity) */
+  --radar-accent: #00f2fe;
+  --radar-accent-gradient: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  --radar-accent-subtle: rgba(0, 242, 254, 0.08);
+  --radar-accent-hover: rgba(0, 242, 254, 0.16);
+  --radar-accent-glow: 0 0 20px rgba(0, 242, 254, 0.35);
+
+  /* Status Colors */
+  --radar-success: #10b981;
+  --radar-success-bg: rgba(16, 185, 129, 0.1);
+  --radar-success-border: rgba(16, 185, 129, 0.25);
+  
+  --radar-warning: #f59e0b;
+  --radar-warning-bg: rgba(245, 158, 11, 0.1);
+  --radar-warning-border: rgba(245, 158, 11, 0.25);
+
+  --radar-danger: #ef4444;
+  --radar-danger-bg: rgba(239, 68, 68, 0.1);
+  --radar-danger-border: rgba(239, 68, 68, 0.25);
+
+  --radar-info: #38bdf8;
+  --radar-info-bg: rgba(56, 189, 248, 0.1);
+  --radar-info-border: rgba(56, 189, 248, 0.25);
+
+  --radar-purple: #a855f7;
+  --radar-purple-bg: rgba(168, 85, 247, 0.1);
+  --radar-purple-border: rgba(168, 85, 247, 0.25);
+
+  /* Spacing Scale */
+  --radar-space-2xs: 2px;
+  --radar-space-xs: 4px;
+  --radar-space-sm: 8px;
+  --radar-space-md: 16px;
+  --radar-space-lg: 24px;
+  --radar-space-xl: 32px;
+  --radar-space-2xl: 48px;
+  --radar-space-3xl: 64px;
+
+  /* Border Radii */
+  --radar-radius-xs: 3px;
+  --radar-radius-sm: 6px;
+  --radar-radius-md: 10px;
+  --radar-radius-lg: 14px;
+  --radar-radius-xl: 20px;
+  --radar-radius-full: 9999px;
+
+  /* Typography */
+  --radar-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --radar-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Elevation Shadows */
+  --radar-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --radar-shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --radar-shadow-lg: 0 12px 24px -4px rgba(0, 0, 0, 0.6), 0 4px 8px -2px rgba(0, 0, 0, 0.4);
+
+  /* Transitions */
+  --radar-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --radar-transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* CSS Reset & Box Sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html {
   height: 100%;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+  color-scheme: dark;
+  background-color: var(--radar-background);
 }
 
 body {
   min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--radar-background);
+  color: var(--radar-text-primary);
+  font-family: var(--radar-font-sans);
+  font-size: 14px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+  overflow-x: hidden;
 }
 
 a {
@@ -42,8 +115,32 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input, textarea, select {
+  font-family: inherit;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--radar-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--radar-border);
+  border-radius: var(--radar-radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--radar-border-active);
 }

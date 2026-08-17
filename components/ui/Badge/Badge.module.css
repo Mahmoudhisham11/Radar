@@ -1,0 +1,70 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  border-radius: var(--radar-radius-full);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Sizes */
+.sm {
+  padding: 3px 8px;
+  font-size: 10px;
+}
+
+.md {
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
+.lg {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Variants */
+.default {
+  background: var(--radar-surface-hover);
+  color: var(--radar-text-secondary);
+  border: 1px solid var(--radar-border);
+}
+
+.accent {
+  background: var(--radar-accent-subtle);
+  color: var(--radar-accent);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+}
+
+.success {
+  background: var(--radar-success-bg);
+  color: var(--radar-success);
+  border: 1px solid var(--radar-success-border);
+}
+
+.warning {
+  background: var(--radar-warning-bg);
+  color: var(--radar-warning);
+  border: 1px solid var(--radar-warning-border);
+}
+
+.danger {
+  background: var(--radar-danger-bg);
+  color: var(--radar-danger);
+  border: 1px solid var(--radar-danger-border);
+}
+
+.purple {
+  background: var(--radar-purple-bg);
+  color: var(--radar-purple);
+  border: 1px solid var(--radar-purple-border);
+}

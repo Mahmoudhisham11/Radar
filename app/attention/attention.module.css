@@ -1,0 +1,36 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.content {
+  padding: var(--radar-space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-xl);
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.categoryGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-md);
+}
+
+.categoryTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--radar-text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--radar-space-sm);
+}
+
+.bannerList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-sm);
+}

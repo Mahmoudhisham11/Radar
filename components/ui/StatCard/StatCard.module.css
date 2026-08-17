@@ -1,0 +1,69 @@
+.statCard {
+  background: var(--radar-surface);
+  border: 1px solid var(--radar-border);
+  border-radius: var(--radar-radius-lg);
+  padding: var(--radar-space-md) var(--radar-space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-xs);
+  transition: all var(--radar-transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.statCard:hover {
+  border-color: var(--radar-border-light);
+  transform: translateY(-1px);
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--radar-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.icon {
+  color: var(--radar-accent);
+  opacity: 0.8;
+}
+
+.valueRow {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  margin: 4px 0;
+}
+
+.prefix, .suffix {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--radar-text-secondary);
+}
+
+.value {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--radar-text-primary);
+  letter-spacing: -0.02em;
+  font-family: var(--radar-font-mono);
+}
+
+.bottomRow {
+  display: flex;
+  align-items: center;
+  gap: var(--radar-space-sm);
+  margin-top: 2px;
+}
+
+.period {
+  font-size: 11px;
+  color: var(--radar-text-muted);
+}

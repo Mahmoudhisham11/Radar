@@ -1,0 +1,98 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.content {
+  padding: var(--radar-space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-xl);
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.pipelineBar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--radar-space-md);
+}
+
+.stageCard {
+  background: var(--radar-surface);
+  border: 1px solid var(--radar-border);
+  border-radius: var(--radar-radius-md);
+  padding: var(--radar-space-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.stageName {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--radar-text-muted);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.stageCount {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--radar-accent);
+  font-family: var(--radar-font-mono);
+}
+
+.leadList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-md);
+}
+
+.leadItem {
+  background: var(--radar-surface-subtle);
+  border: 1px solid var(--radar-border);
+  border-radius: var(--radar-radius-md);
+  padding: var(--radar-space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-sm);
+}
+
+.leadHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.leadInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.leadTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--radar-text-primary);
+}
+
+.leadSource {
+  font-size: 12px;
+  color: var(--radar-text-muted);
+}
+
+.leadNote {
+  font-size: 13px;
+  color: var(--radar-text-secondary);
+}
+
+.leadActions {
+  display: flex;
+  align-items: center;
+  gap: var(--radar-space-sm);
+  margin-top: 4px;
+}

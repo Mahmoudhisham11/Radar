@@ -1,0 +1,116 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.content {
+  padding: var(--radar-space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-xl);
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.connectionCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--radar-surface);
+  border: 1px solid var(--radar-border);
+  border-radius: var(--radar-radius-lg);
+  padding: var(--radar-space-md) var(--radar-space-lg);
+}
+
+.connectionLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--radar-space-md);
+}
+
+.connectionDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--radar-success);
+  box-shadow: 0 0 10px var(--radar-success);
+}
+
+.connectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--radar-text-primary);
+}
+
+.connectionSubtitle {
+  font-size: 12px;
+  color: var(--radar-text-muted);
+}
+
+.connectionActions {
+  display: flex;
+  align-items: center;
+  gap: var(--radar-space-md);
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--radar-space-md);
+}
+
+.tableContainer {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+.table th {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--radar-border);
+  color: var(--radar-text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.table td {
+  padding: 14px;
+  border-bottom: 1px solid var(--radar-border);
+  color: var(--radar-text-secondary);
+}
+
+.videoTitleCell {
+  display: flex;
+  flex-direction: column;
+}
+
+.videoTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--radar-text-primary);
+}
+
+.videoMeta {
+  font-size: 11px;
+  color: var(--radar-text-muted);
+}
+
+.monoCell {
+  font-family: var(--radar-font-mono);
+  font-size: 13px;
+  color: var(--radar-text-primary);
+}
+
+.highlightGreen {
+  color: var(--radar-success);
+  font-weight: 600;
+}

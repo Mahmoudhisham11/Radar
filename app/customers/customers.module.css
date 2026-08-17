@@ -1,0 +1,58 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.content {
+  padding: var(--radar-space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-xl);
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--radar-space-md);
+}
+
+.tableContainer {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+.table th {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--radar-border);
+  color: var(--radar-text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.table td {
+  padding: 14px;
+  border-bottom: 1px solid var(--radar-border);
+  color: var(--radar-text-secondary);
+}
+
+.customerName {
+  font-weight: 600;
+  color: var(--radar-text-primary);
+}
+
+.monoCell {
+  font-family: var(--radar-font-mono);
+  color: var(--radar-text-primary);
+}

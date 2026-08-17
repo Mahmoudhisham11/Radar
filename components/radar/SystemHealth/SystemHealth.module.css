@@ -1,0 +1,63 @@
+.healthContainer {
+  background: var(--radar-surface);
+  border: 1px solid var(--radar-border);
+  border-radius: var(--radar-radius-lg);
+  padding: var(--radar-space-md) var(--radar-space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-md);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.titleGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--radar-space-sm);
+}
+
+.indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--radar-accent);
+  box-shadow: 0 0 8px var(--radar-accent);
+  animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--radar-text-primary);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--radar-space-md);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--radar-space-sm) var(--radar-space-md);
+  background: var(--radar-surface-subtle);
+  border: 1px solid var(--radar-border);
+  border-radius: var(--radar-radius-md);
+}
+
+.itemName {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--radar-text-secondary);
+}

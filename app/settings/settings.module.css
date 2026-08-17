@@ -1,0 +1,89 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.content {
+  padding: var(--radar-space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-xl);
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.twoColumnGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--radar-space-xl);
+}
+
+@media (max-width: 1100px) {
+  .twoColumnGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-md);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-xs);
+}
+
+.label {
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--radar-text-muted);
+  letter-spacing: 0.05em;
+}
+
+.valueBox {
+  background: var(--radar-surface-subtle);
+  border: 1px solid var(--radar-border);
+  border-radius: var(--radar-radius-md);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--radar-text-secondary);
+  line-height: 1.5;
+}
+
+.integrationList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-md);
+}
+
+.integrationItem {
+  background: var(--radar-surface-subtle);
+  border: 1px solid var(--radar-border);
+  border-radius: var(--radar-radius-md);
+  padding: var(--radar-space-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.integrationInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.integrationName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--radar-text-primary);
+}
+
+.integrationDesc {
+  font-size: 12px;
+  color: var(--radar-text-muted);
+}

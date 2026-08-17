@@ -1,0 +1,182 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.content {
+  padding: var(--radar-space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-lg);
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
+  flex: 1;
+}
+
+.promptsSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-xs);
+}
+
+.promptsLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--radar-text-muted);
+  letter-spacing: 0.05em;
+}
+
+.chipRow {
+  display: flex;
+  align-items: center;
+  gap: var(--radar-space-sm);
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.promptChip {
+  background: var(--radar-surface-subtle);
+  border: 1px solid var(--radar-border);
+  border-radius: var(--radar-radius-full);
+  padding: 6px 14px;
+  font-size: 12px;
+  color: var(--radar-text-secondary);
+  white-space: nowrap;
+  transition: all var(--radar-transition-fast);
+}
+
+.promptChip:hover {
+  background: var(--radar-surface-hover);
+  color: var(--radar-accent);
+  border-color: rgba(0, 242, 254, 0.4);
+}
+
+.conversation {
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-lg);
+  flex: 1;
+}
+
+.messageBubble {
+  border-radius: var(--radar-radius-lg);
+  padding: var(--radar-space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-sm);
+}
+
+.userBubble {
+  background: var(--radar-surface-subtle);
+  border: 1px solid var(--radar-border);
+  align-self: flex-end;
+  max-width: 80%;
+}
+
+.aiBubble {
+  background: var(--radar-surface);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.05);
+}
+
+.messageMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.aiTag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aiDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--radar-accent);
+  box-shadow: 0 0 8px var(--radar-accent);
+}
+
+.sender {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--radar-text-primary);
+}
+
+.time {
+  font-size: 11px;
+  color: var(--radar-text-muted);
+}
+
+.messageText {
+  font-size: 14px;
+  color: var(--radar-text-primary);
+  line-height: 1.5;
+}
+
+.aiBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-md);
+  margin-top: 4px;
+}
+
+.aiSummary {
+  font-size: 14px;
+  color: var(--radar-text-primary);
+  line-height: 1.6;
+}
+
+.evidenceCard, .recommendationCard {
+  background: var(--radar-surface-subtle);
+  border: 1px solid var(--radar-border);
+  border-radius: var(--radar-radius-md);
+  padding: var(--radar-space-md);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.evidenceHeader, .recHeader {
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--radar-text-muted);
+}
+
+.evidenceList, .recList {
+  font-size: 13px;
+  color: var(--radar-text-secondary);
+  line-height: 1.6;
+  padding-left: 18px;
+}
+
+.inputContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--radar-space-sm);
+  background: var(--radar-surface);
+  border: 1px solid var(--radar-border);
+  border-radius: var(--radar-radius-lg);
+  padding: 8px;
+}
+
+.inputField {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--radar-text-primary);
+  font-size: 14px;
+  padding: 8px 12px;
+  outline: none;
+}
+
+.inputField::placeholder {
+  color: var(--radar-text-muted);
+}

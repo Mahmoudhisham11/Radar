@@ -1,0 +1,83 @@
+.header {
+  height: 64px;
+  min-height: 64px;
+  background: var(--radar-surface);
+  border-bottom: 1px solid var(--radar-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--radar-space-xl);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--radar-space-sm);
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--radar-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 11px;
+  color: var(--radar-text-muted);
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: var(--radar-space-lg);
+}
+
+.userBadge {
+  display: flex;
+  align-items: center;
+  gap: var(--radar-space-sm);
+  padding: 4px 10px;
+  background: var(--radar-surface-subtle);
+  border: 1px solid var(--radar-border);
+  border-radius: var(--radar-radius-full);
+}
+
+.avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--radar-accent-gradient);
+  color: var(--radar-text-inverse);
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.role {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--radar-text-primary);
+}
+
+.status {
+  font-size: 9px;
+  color: var(--radar-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}

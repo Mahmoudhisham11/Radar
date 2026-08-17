@@ -1,0 +1,122 @@
+.card {
+  background: var(--radar-surface);
+  border: 1px solid var(--radar-border);
+  border-radius: var(--radar-radius-lg);
+  padding: var(--radar-space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-sm);
+  position: relative;
+  transition: all var(--radar-transition-fast);
+}
+
+.card:hover {
+  border-color: var(--radar-border-light);
+}
+
+.problem {
+  border-left: 3px solid var(--radar-danger);
+}
+
+.opportunity {
+  border-left: 3px solid var(--radar-accent);
+}
+
+.trend {
+  border-left: 3px solid var(--radar-purple);
+}
+
+.recommendation {
+  border-left: 3px solid var(--radar-success);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--radar-space-xs);
+}
+
+.badgeGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--radar-space-xs);
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--radar-text-primary);
+  margin-top: 4px;
+}
+
+.summary {
+  font-size: 13px;
+  color: var(--radar-text-secondary);
+  line-height: 1.6;
+}
+
+.evidenceSection {
+  background: var(--radar-surface-subtle);
+  border: 1px solid var(--radar-border);
+  border-radius: var(--radar-radius-md);
+  padding: var(--radar-space-sm) var(--radar-space-md);
+  margin-top: 4px;
+}
+
+.sectionHeading {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--radar-text-muted);
+  margin-bottom: 6px;
+}
+
+.evidenceList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.evidenceItem {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--radar-font-mono);
+}
+
+.evidenceMetric {
+  color: var(--radar-text-secondary);
+}
+
+.evidenceValue {
+  color: var(--radar-accent);
+  font-weight: 600;
+}
+
+.evidencePeriod {
+  color: var(--radar-text-muted);
+  font-size: 11px;
+}
+
+.actionSection {
+  margin-top: 6px;
+  padding-top: var(--radar-space-sm);
+  border-top: 1px solid var(--radar-border);
+}
+
+.actionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--radar-space-md);
+}
+
+.actionText {
+  font-size: 12px;
+  color: var(--radar-text-primary);
+  font-weight: 500;
+}

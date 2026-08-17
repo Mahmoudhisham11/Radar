@@ -1,0 +1,54 @@
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--radar-space-sm) var(--radar-space-md);
+  border-radius: var(--radar-radius-md);
+  background: var(--radar-surface);
+  border: 1px solid var(--radar-border);
+  gap: var(--radar-space-md);
+  transition: all var(--radar-transition-fast);
+}
+
+.critical {
+  background: var(--radar-danger-bg);
+  border-color: var(--radar-danger-border);
+}
+
+.warning {
+  background: var(--radar-warning-bg);
+  border-color: var(--radar-warning-border);
+}
+
+.opportunity {
+  background: var(--radar-accent-subtle);
+  border-color: rgba(0, 242, 254, 0.3);
+}
+
+.reminder {
+  background: var(--radar-purple-bg);
+  border-color: var(--radar-purple-border);
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--radar-space-md);
+  flex: 1;
+}
+
+.textContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--radar-text-primary);
+}
+
+.message {
+  font-size: 12px;
+  color: var(--radar-text-secondary);
+}
