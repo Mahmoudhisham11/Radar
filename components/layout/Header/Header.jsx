@@ -1,5 +1,6 @@
 import styles from "./Header.module.css";
 import Badge from "@/components/ui/Badge/Badge";
+import NotificationBell from "./NotificationBell";
 
 export default function Header({
   title = "Command Center",
@@ -17,6 +18,7 @@ export default function Header({
       </div>
 
       <div className={styles.right}>
+        <NotificationBell />
         {actions}
         <div className={styles.userBadge}>
           <div className={styles.avatar}>HQ</div>
