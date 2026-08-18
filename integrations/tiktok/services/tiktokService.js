@@ -6,6 +6,7 @@
 
 import { tiktokAuth } from "../auth/tiktokAuth";
 import { TikTokSandboxApi } from "../api/sandboxApi";
+import { tiktokSyncEngine } from "../sync/syncEngine";
 import { tiktokRepository } from "@/lib/repositories/tiktokRepository";
 import { connectionRepository } from "@/lib/repositories/connectionRepository";
 import { CONNECTION_STATUS } from "@/lib/firebase/collections";
@@ -27,7 +28,7 @@ export class TikTokService {
   }
 
   /**
-   * Handles OAuth callback: exchanges code, fetches profile, saves in Firestore
+   * Handles OAuth callback: exchanges code, fetches profile, saves in Firestore and triggers sync
    */
   async handleOAuthCallback(code) {
     const timer = logger.startTimer("TikTokService.handleOAuthCallback");
@@ -56,6 +57,13 @@ export class TikTokService {
       }
     } catch (profileError) {
       logger.warn("Initial profile fetch after OAuth failed (continuing with connection)", profileError);
+    }
+
+    // 3. Automatically trigger full synchronization for videos and metrics
+    try {
+      await tiktokSyncEngine.syncAllTikTokData("oauth_callback");
+    } catch (syncErr) {
+      logger.warn("Initial full sync after OAuth failed (continuing with connection)", syncErr);
     }
 
     timer.end("success");

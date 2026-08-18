@@ -27,6 +27,9 @@ async function runPhase1Tests() {
   // 1. TikTok Schema & Scopes
   console.log("--- 1. Verification of Official TikTok Endpoints & Scopes ---");
   assert(TIKTOK_SCOPES.includes("user.info.basic"), "Scope: user.info.basic");
+  assert(TIKTOK_SCOPES.includes("user.info.profile"), "Scope: user.info.profile");
+  assert(TIKTOK_SCOPES.includes("user.info.stats"), "Scope: user.info.stats");
+  assert(TIKTOK_SCOPES.includes("video.list"), "Scope: video.list");
 
   assert(TIKTOK_ENDPOINTS.AUTH_URL === "https://www.tiktok.com/v2/auth/authorize/", "Endpoint: Authorization v2");
   assert(TIKTOK_ENDPOINTS.TOKEN_URL === "https://open.tiktokapis.com/v2/oauth/token/", "Endpoint: Token v2");
