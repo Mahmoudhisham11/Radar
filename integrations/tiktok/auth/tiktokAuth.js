@@ -28,9 +28,13 @@ export class TikTokAuthService {
       throw new Error("TikTok OAuth configuration missing (TIKTOK_CLIENT_KEY or TIKTOK_REDIRECT_URI).");
     }
 
+    const configuredScopes = process.env.TIKTOK_SCOPES
+      ? process.env.TIKTOK_SCOPES.split(",").map((s) => s.trim()).filter(Boolean)
+      : TIKTOK_SCOPES;
+
     const params = new URLSearchParams({
       client_key: clientKey,
-      scope: TIKTOK_SCOPES.join(","),
+      scope: configuredScopes.join(","),
       response_type: "code",
       redirect_uri: redirectUri,
       state,

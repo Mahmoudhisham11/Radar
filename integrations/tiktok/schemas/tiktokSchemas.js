@@ -4,10 +4,6 @@
 
 export const TIKTOK_SCOPES = [
   "user.info.basic",
-  "user.info.profile",
-  "user.info.stats",
-  "video.list",
-  "video.insights",
 ];
 
 export const TIKTOK_ENDPOINTS = {
