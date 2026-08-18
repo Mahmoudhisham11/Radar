@@ -1,6 +1,7 @@
 /**
  * TikTok API Client (Server-side Only)
- * Handles authenticated requests, rate-limiting, retries, and network errors.
+ * Handles authenticated requests, rate-limiting, retries with exponential backoff,
+ * timeout abortion, error envelopes, and logging.
  */
 
 import { logger } from "@/lib/logger";
@@ -8,11 +9,11 @@ import { logger } from "@/lib/logger";
 export class TikTokClient {
   constructor(accessToken = null) {
     this.accessToken = accessToken;
-    this.timeoutMs = 10000;
+    this.timeoutMs = 12000;
   }
 
-  async request(endpoint, options = {}) {
-    const timer = logger.startTimer("TikTokClient.request", { endpoint });
+  async request(url, options = {}) {
+    const timer = logger.startTimer("TikTokClient.request", { url });
     const headers = {
       "Content-Type": "application/json",
       ...(this.accessToken ? { Authorization: `Bearer ${this.accessToken}` } : {}),
@@ -20,7 +21,7 @@ export class TikTokClient {
     };
 
     let attempts = 0;
-    const maxRetries = options.retries || 2;
+    const maxRetries = options.retries ?? 2;
 
     while (attempts <= maxRetries) {
       attempts++;
@@ -28,7 +29,7 @@ export class TikTokClient {
       const timeoutId = setTimeout(() => controller.abort(), this.timeoutMs);
 
       try {
-        const response = await fetch(endpoint, {
+        const response = await fetch(url, {
           ...options,
           headers,
           signal: controller.signal,
@@ -36,30 +37,40 @@ export class TikTokClient {
 
         clearTimeout(timeoutId);
 
-        if (!response.ok) {
-          const errorBody = await response.text();
-          throw new Error(`TikTok API HTTP ${response.status}: ${errorBody}`);
+        const textBody = await response.text();
+        let data = {};
+        try {
+          data = JSON.parse(textBody);
+        } catch {
+          data = { raw: textBody };
         }
 
-        const data = await response.json();
-        
-        // Handle TikTok envelope error code if present
-        if (data.error && data.error.code !== "ok" && data.error.code !== 0) {
-          throw new Error(`TikTok API error [${data.error.code}]: ${data.error.message}`);
+        if (!response.ok) {
+          const errorMsg = data?.error?.message || data?.message || `TikTok API HTTP ${response.status}: ${textBody}`;
+          throw new Error(errorMsg);
+        }
+
+        // TikTok API envelope check
+        if (data.error && data.error.code && data.error.code !== "ok" && data.error.code !== 0) {
+          throw new Error(`TikTok API error [${data.error.code}]: ${data.error.message || "Unknown error"}`);
         }
 
         timer.end("success");
         return data;
       } catch (error) {
         clearTimeout(timeoutId);
+        const isAbort = error.name === "AbortError";
+        const formattedError = isAbort ? new Error(`TikTok API request timed out after ${this.timeoutMs}ms`) : error;
+
         if (attempts > maxRetries) {
-          timer.error(error, { attempts });
-          throw error;
+          timer.error(formattedError, { attempts, url });
+          throw formattedError;
         }
-        // Exponential backoff
+
+        // Exponential backoff delay: 500ms, 1000ms...
         const delay = Math.pow(2, attempts) * 500;
-        logger.warn(`Retrying TikTok API request after ${delay}ms...`, { endpoint, attempt: attempts });
-        await new Promise(resolve => setTimeout(resolve, delay));
+        logger.warn(`Retrying TikTok API request after ${delay}ms...`, { url, attempt: attempts, error: formattedError.message });
+        await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
   }

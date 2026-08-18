@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:tiktok": "node scripts/test-phase1.mjs"
   },
   "dependencies": {
     "firebase": "^12.17.1",

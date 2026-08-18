@@ -14,14 +14,37 @@
   margin: 0 auto;
 }
 
+/* Connection Manager Card */
 .connectionCard {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: var(--radar-space-md);
   background: var(--radar-surface);
   border: 1px solid var(--radar-border);
   border-radius: var(--radar-radius-lg);
-  padding: var(--radar-space-md) var(--radar-space-lg);
+  padding: var(--radar-space-lg);
+  transition: border-color var(--radar-transition-normal);
+}
+
+.connectionCard.connected {
+  border-color: var(--radar-border-light);
+}
+
+.connectionCard.disconnected {
+  border-color: var(--radar-border);
+}
+
+.connectionCard.error {
+  border-color: var(--radar-danger-border);
+  background: linear-gradient(180deg, var(--radar-surface) 0%, rgba(239, 68, 68, 0.04) 100%);
+}
+
+.connectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--radar-space-md);
+  flex-wrap: wrap;
 }
 
 .connectionLeft {
@@ -30,37 +53,130 @@
   gap: var(--radar-space-md);
 }
 
-.connectionDot {
-  width: 10px;
-  height: 10px;
+.avatar {
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: var(--radar-success);
-  box-shadow: 0 0 10px var(--radar-success);
+  border: 2px solid var(--radar-border-light);
+  object-fit: cover;
+  background: var(--radar-surface-subtle);
+}
+
+.avatarPlaceholder {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--radar-border);
+  background: var(--radar-surface-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--radar-accent);
+}
+
+.connectionTitleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.connectionTitleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--radar-space-sm);
 }
 
 .connectionTitle {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--radar-text-primary);
 }
 
 .connectionSubtitle {
+  font-size: 13px;
+  color: var(--radar-text-muted);
+}
+
+.connectionMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--radar-space-md);
   font-size: 12px;
   color: var(--radar-text-muted);
+}
+
+.connectionDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--radar-text-muted);
+}
+
+.dotConnected {
+  background: var(--radar-success);
+  box-shadow: 0 0 8px var(--radar-success);
+}
+
+.dotDisconnected {
+  background: var(--radar-text-muted);
+}
+
+.dotRefreshing {
+  background: var(--radar-warning);
+  box-shadow: 0 0 8px var(--radar-warning);
+  animation: pulse 1.5s infinite;
+}
+
+.dotError {
+  background: var(--radar-danger);
+  box-shadow: 0 0 8px var(--radar-danger);
+}
+
+@keyframes pulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
 }
 
 .connectionActions {
   display: flex;
   align-items: center;
-  gap: var(--radar-space-md);
+  gap: var(--radar-space-sm);
 }
 
+/* Error Banner inside card */
+.errorBanner {
+  background: var(--radar-danger-bg);
+  border: 1px solid var(--radar-danger-border);
+  border-radius: var(--radar-radius-md);
+  padding: var(--radar-space-sm) var(--radar-space-md);
+  color: var(--radar-danger);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--radar-space-sm);
+}
+
+.noticeBanner {
+  background: var(--radar-accent-subtle);
+  border: 1px solid var(--radar-border-glow);
+  border-radius: var(--radar-radius-md);
+  padding: var(--radar-space-sm) var(--radar-space-md);
+  color: var(--radar-accent);
+  font-size: 13px;
+}
+
+/* Metrics Grid */
 .metricsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--radar-space-md);
 }
 
+/* Table */
 .tableContainer {
   overflow-x: auto;
 }
@@ -91,6 +207,7 @@
 .videoTitleCell {
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 
 .videoTitle {
@@ -113,4 +230,25 @@
 .highlightGreen {
   color: var(--radar-success);
   font-weight: 600;
+}
+
+.emptyState {
+  padding: var(--radar-space-2xl) var(--radar-space-md);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--radar-space-sm);
+  color: var(--radar-text-muted);
+}
+
+.emptyStateTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--radar-text-primary);
+}
+
+.emptyStateText {
+  font-size: 13px;
+  max-width: 450px;
 }
