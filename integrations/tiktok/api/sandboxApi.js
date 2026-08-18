@@ -1,6 +1,6 @@
 /**
  * TikTok Sandbox API Layer
- * Specifically isolated for Sandbox-compatible endpoints.
+ * Isolated for Sandbox-compatible endpoints with full pagination support.
  */
 
 import { TikTokClient } from "../client/tiktokClient";
@@ -60,7 +60,7 @@ export class TikTokSandboxApi {
   }
 
   /**
-   * Fetches user videos from official TikTok v2 API
+   * Fetches a single page of videos from official TikTok v2 API
    */
   async fetchVideoList(maxCount = 20, cursor = 0) {
     try {
@@ -82,8 +82,44 @@ export class TikTokSandboxApi {
         cursor: response.data?.cursor || 0,
       };
     } catch (error) {
-      logger.error("Failed to fetch TikTok Sandbox video list", error);
+      logger.error("Failed to fetch TikTok Sandbox video list page", error);
       throw error;
     }
+  }
+
+  /**
+   * Paginates through all available videos until has_more is false
+   */
+  async fetchAllVideos(maxPages = 10) {
+    const allVideos = [];
+    let currentCursor = 0;
+    let pageCount = 0;
+    let hasMore = true;
+
+    while (hasMore && pageCount < maxPages) {
+      pageCount++;
+      const pageResult = await this.fetchVideoList(20, currentCursor);
+      
+      if (pageResult.videos && pageResult.videos.length > 0) {
+        allVideos.push(...pageResult.videos);
+      }
+
+      hasMore = pageResult.hasMore;
+      currentCursor = pageResult.cursor;
+
+      if (!hasMore || !currentCursor) break;
+    }
+
+    // Deduplicate by ID just in case pagination overlaps
+    const seen = new Set();
+    const uniqueVideos = [];
+    for (const v of allVideos) {
+      if (!seen.has(v.id)) {
+        seen.add(v.id);
+        uniqueVideos.push(v);
+      }
+    }
+
+    return uniqueVideos;
   }
 }

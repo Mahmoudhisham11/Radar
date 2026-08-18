@@ -3,6 +3,7 @@
   min-height: 100vh;
   background-color: var(--radar-background);
   color: var(--radar-text-primary);
+  width: 100%;
 }
 
 .mainContent {
@@ -11,4 +12,16 @@
   flex-direction: column;
   min-width: 0; /* Prevents overflow with flex children */
   overflow-y: auto;
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .mainContent {
+    padding-bottom: 80px; /* Safe area for mobile bottom nav */
+    width: 100%;
+  }
 }

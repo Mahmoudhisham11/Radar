@@ -8,5 +8,6 @@ export * from "./auth/tiktokAuth";
 export * from "./client/tiktokClient";
 export * from "./api/sandboxApi";
 export * from "./services/tiktokService";
+export * from "./sync/syncEngine";
 export * from "./transformers/tiktokTransformers";
 export * from "./schemas/tiktokSchemas";

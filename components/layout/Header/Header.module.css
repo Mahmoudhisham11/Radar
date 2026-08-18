@@ -12,6 +12,34 @@
   z-index: 40;
 }
 
+@media (max-width: 768px) {
+  .header {
+    padding: 0 var(--radar-space-md);
+  }
+
+  .meta {
+    display: none !important;
+  }
+
+  .userBadge {
+    padding: 2px !important;
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .right {
+    gap: var(--radar-space-sm) !important;
+  }
+
+  .title {
+    font-size: 16px !important;
+  }
+
+  .subtitle {
+    display: none;
+  }
+}
+
 .left {
   display: flex;
   flex-direction: column;
@@ -27,7 +55,7 @@
   font-size: 18px;
   font-weight: 700;
   color: var(--radar-text-primary);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 .subtitle {
@@ -52,8 +80,8 @@
 }
 
 .avatar {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: var(--radar-accent-gradient);
   color: var(--radar-text-inverse);
@@ -78,6 +106,5 @@
 .status {
   font-size: 9px;
   color: var(--radar-accent);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
 }

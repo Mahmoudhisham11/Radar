@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100%;
+  width: 100%;
 }
 
 .content {
@@ -14,6 +15,13 @@
   margin: 0 auto;
 }
 
+@media (max-width: 768px) {
+  .content {
+    padding: var(--radar-space-md);
+    gap: var(--radar-space-md);
+  }
+}
+
 /* Connection Manager Card */
 .connectionCard {
   display: flex;
@@ -24,6 +32,12 @@
   border-radius: var(--radar-radius-lg);
   padding: var(--radar-space-lg);
   transition: border-color var(--radar-transition-normal);
+}
+
+@media (max-width: 768px) {
+  .connectionCard {
+    padding: var(--radar-space-md);
+  }
 }
 
 .connectionCard.connected {
@@ -45,6 +59,13 @@
   justify-content: space-between;
   gap: var(--radar-space-md);
   flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .connectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .connectionLeft {
@@ -90,7 +111,7 @@
 
 .connectionTitle {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--radar-text-primary);
 }
 
@@ -105,6 +126,7 @@
   gap: var(--radar-space-md);
   font-size: 12px;
   color: var(--radar-text-muted);
+  flex-wrap: wrap;
 }
 
 .connectionDot {
@@ -144,6 +166,14 @@
   display: flex;
   align-items: center;
   gap: var(--radar-space-sm);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .connectionActions {
+    width: 100%;
+    margin-top: var(--radar-space-xs);
+  }
 }
 
 .noticeBanner {
@@ -173,6 +203,12 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--radar-space-md);
+}
+
+@media (max-width: 600px) {
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Catalog View Controls */
@@ -238,6 +274,13 @@
   gap: var(--radar-space-lg);
 }
 
+@media (max-width: 768px) {
+  .videoGrid {
+    grid-template-columns: 1fr;
+    gap: var(--radar-space-md);
+  }
+}
+
 .videoCard {
   background: var(--radar-surface);
   border: 1px solid var(--radar-border);
@@ -301,7 +344,7 @@
 .durationBadge {
   position: absolute;
   bottom: 8px;
-  right: 8px;
+  left: 8px;
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(4px);
   color: #fff;
@@ -315,7 +358,7 @@
 .dateBadge {
   position: absolute;
   top: 8px;
-  left: 8px;
+  right: 8px;
   background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(4px);
   color: var(--radar-text-secondary);
@@ -364,7 +407,6 @@
 
 .statLabel {
   font-size: 9px;
-  text-transform: uppercase;
   color: var(--radar-text-muted);
   font-weight: 600;
 }
@@ -407,13 +449,14 @@
 /* Table View */
 .tableContainer {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
-  text-align: left;
+  text-align: right;
 }
 
 .table th {
@@ -421,8 +464,6 @@
   border-bottom: 1px solid var(--radar-border);
   color: var(--radar-text-muted);
   font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   font-weight: 600;
 }
 

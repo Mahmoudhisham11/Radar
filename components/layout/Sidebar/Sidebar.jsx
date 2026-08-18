@@ -6,16 +6,16 @@ import styles from "./Sidebar.module.css";
 import Badge from "@/components/ui/Badge/Badge";
 
 const NAV_ITEMS = [
-  { label: "Command Center", href: "/", badge: null },
-  { label: "Intelligence", href: "/intelligence", badge: "AI" },
-  { label: "TikTok", href: "/tiktok", badge: "Sandbox" },
-  { label: "Content", href: "/content", badge: null },
-  { label: "Customers", href: "/customers", badge: null },
-  { label: "Leads", href: "/leads", badge: null },
-  { label: "Goals", href: "/goals", badge: null },
-  { label: "Ask RADAR", href: "/ask-radar", badge: "New" },
-  { label: "Attention", href: "/attention", badge: "3", badgeVariant: "danger" },
-  { label: "Settings", href: "/settings", badge: null },
+  { label: "مركز القيادة", href: "/", badge: null },
+  { label: "ذكاء التسويق", href: "/intelligence", badge: "AI" },
+  { label: "تيك توك", href: "/tiktok", badge: "Sandbox" },
+  { label: "المحتوى", href: "/content", badge: null },
+  { label: "العملاء", href: "/customers", badge: null },
+  { label: "العملاء المحتملين", href: "/leads", badge: null },
+  { label: "الأهداف والمسار", href: "/goals", badge: null },
+  { label: "اسأل رادار", href: "/ask-radar", badge: "جديد" },
+  { label: "تنبيهات هامة", href: "/attention", badge: "3", badgeVariant: "danger" },
+  { label: "الإعدادات", href: "/settings", badge: null },
 ];
 
 export default function Sidebar() {
@@ -29,13 +29,13 @@ export default function Sidebar() {
           <span className={styles.radarCore} />
         </div>
         <div className={styles.brandText}>
-          <span className={styles.brandTitle}>RADAR</span>
-          <span className={styles.brandSubtitle}>AI Marketing Intel</span>
+          <span className={styles.brandTitle}>رادار RADAR</span>
+          <span className={styles.brandSubtitle}>ذكاء التسويق والنمو</span>
         </div>
       </div>
 
       <nav className={styles.nav}>
-        <div className={styles.sectionTitle}>Main Navigation</div>
+        <div className={styles.sectionTitle}>القائمة الرئيسية</div>
         <ul className={styles.navList}>
           {NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href;
@@ -64,7 +64,7 @@ export default function Sidebar() {
       <div className={styles.footer}>
         <div className={styles.systemStatus}>
           <span className={styles.statusDot} />
-          <span className={styles.statusText}>v0.1.0 • Phase 0 Foundation</span>
+          <span className={styles.statusText}>النظام يعمل بكفاءة • مباشر</span>
         </div>
       </div>
     </aside>

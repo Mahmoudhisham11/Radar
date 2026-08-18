@@ -1,16 +1,22 @@
 .sidebar {
-  width: 240px;
-  min-width: 240px;
+  width: 250px;
+  min-width: 250px;
   height: 100vh;
   position: sticky;
   top: 0;
   background: var(--radar-surface);
-  border-right: 1px solid var(--radar-border);
+  border-left: 1px solid var(--radar-border);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: var(--radar-space-lg) var(--radar-space-md);
   z-index: 50;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none !important;
+  }
 }
 
 .brand {
@@ -64,14 +70,13 @@
 .brandTitle {
   font-size: 16px;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   color: var(--radar-text-primary);
 }
 
 .brandSubtitle {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 11px;
+  letter-spacing: 0.02em;
   color: var(--radar-text-muted);
 }
 
@@ -85,8 +90,7 @@
 
 .sectionTitle {
   font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   font-weight: 600;
   color: var(--radar-text-muted);
   padding: 0 var(--radar-space-sm) var(--radar-space-xs);
@@ -103,7 +107,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 9px 12px;
   border-radius: var(--radar-radius-md);
   font-size: 13px;
   font-weight: 500;
@@ -119,8 +123,9 @@
 .active {
   background: var(--radar-accent-subtle);
   color: var(--radar-accent);
-  font-weight: 600;
-  border-left: 2px solid var(--radar-accent);
+  font-weight: 700;
+  border-right: 3px solid var(--radar-accent);
+  border-left: none;
 }
 
 .linkText {
@@ -151,5 +156,4 @@
 .statusText {
   font-size: 11px;
   color: var(--radar-text-muted);
-  font-family: var(--radar-font-mono);
 }

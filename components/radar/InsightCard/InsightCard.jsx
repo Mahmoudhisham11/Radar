@@ -15,24 +15,26 @@ export default function InsightCard({
 }) {
   const getTypeBadgeVariant = () => {
     switch (type) {
-      case "problem": return "danger";
-      case "opportunity": return "accent";
-      case "trend": return "purple";
-      case "recommendation": return "success";
-      default: return "default";
+      case "problem": return { variant: "danger", label: "مشكلة" };
+      case "opportunity": return { variant: "accent", label: "فرصة نمو" };
+      case "trend": return { variant: "purple", label: "اتجاه صاعد" };
+      case "recommendation": return { variant: "success", label: "توصية" };
+      default: return { variant: "default", label: type };
     }
   };
+
+  const badgeInfo = getTypeBadgeVariant();
 
   return (
     <div className={`${styles.card} ${styles[type] || styles.problem}`}>
       <div className={styles.header}>
         <div className={styles.badgeGroup}>
-          <Badge variant={getTypeBadgeVariant()} size="sm">
-            {type}
+          <Badge variant={badgeInfo.variant} size="sm">
+            {badgeInfo.label}
           </Badge>
           {severity === "critical" && (
             <Badge variant="danger" size="sm" dot>
-              Critical
+              حرج
             </Badge>
           )}
         </div>
@@ -43,7 +45,7 @@ export default function InsightCard({
 
       {evidence.length > 0 && (
         <div className={styles.evidenceSection}>
-          <span className={styles.sectionHeading}>Data Evidence</span>
+          <span className={styles.sectionHeading}>الأدلة والبيانات الرقمية</span>
           <ul className={styles.evidenceList}>
             {evidence.map((item, idx) => (
               <li key={idx} className={styles.evidenceItem}>
@@ -58,7 +60,7 @@ export default function InsightCard({
 
       {recommendedActions.length > 0 && (
         <div className={styles.actionSection}>
-          <span className={styles.sectionHeading}>Recommended Next Step</span>
+          <span className={styles.sectionHeading}>الخطوة التالية الموصى بها</span>
           <div className={styles.actionRow}>
             <span className={styles.actionText}>{recommendedActions[0].action || recommendedActions[0]}</span>
             <Button
@@ -66,7 +68,7 @@ export default function InsightCard({
               size="sm"
               onClick={() => onTakeAction && onTakeAction(recommendedActions[0])}
             >
-              Take Action
+              تنفيذ الإجراء
             </Button>
           </div>
         </div>

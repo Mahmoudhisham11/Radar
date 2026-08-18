@@ -7,6 +7,11 @@ import StatCard from "@/components/ui/StatCard/StatCard";
 import Card from "@/components/ui/Card/Card";
 import Badge from "@/components/ui/Badge/Badge";
 import Button from "@/components/ui/Button/Button";
+import {
+  useTikTokVideos,
+  useTikTokProfile,
+  useTikTokSyncStatus,
+} from "@/lib/hooks/useTikTokRealtime";
 
 export default function TikTokPage() {
   const [connection, setConnection] = useState({
@@ -19,12 +24,14 @@ export default function TikTokPage() {
     lastError: null,
   });
 
-  const [profile, setProfile] = useState(null);
-  const [videos, setVideos] = useState([]);
+  const { videos, loading: videosLoading } = useTikTokVideos();
+  const { profile } = useTikTokProfile();
+  const { syncStatus, syncing, triggerSync } = useTikTokSyncStatus();
+
   const [actionLoading, setActionLoading] = useState(false);
   const [notice, setNotice] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
-  const [viewMode, setViewMode] = useState("cards"); // "cards" | "table"
+  const [viewMode, setViewMode] = useState("cards");
 
   // Fetch Connection Status from Server
   const fetchStatus = useCallback(async () => {
@@ -32,40 +39,14 @@ export default function TikTokPage() {
       const res = await fetch("/api/integrations/tiktok/status", { cache: "no-store" });
       const data = await res.json();
       setConnection(data);
-
-      if (data.status === "connected") {
-        fetchProfileAndVideos();
-      }
     } catch (err) {
       setConnection((prev) => ({
         ...prev,
         status: "error",
-        lastError: err.message || "Failed to load connection status.",
+        lastError: err.message || "فشل في تحميل حالة الاتصال.",
       }));
     }
   }, []);
-
-  // Fetch Profile & Video Data when Connected
-  const fetchProfileAndVideos = async () => {
-    try {
-      const [profRes, vidRes] = await Promise.all([
-        fetch("/api/integrations/tiktok/profile", { cache: "no-store" }),
-        fetch("/api/integrations/tiktok/videos", { cache: "no-store" }),
-      ]);
-
-      if (profRes.ok) {
-        const profData = await profRes.json();
-        if (profData.profile) setProfile(profData.profile);
-      }
-
-      if (vidRes.ok) {
-        const vidData = await vidRes.json();
-        if (vidData.videos) setVideos(vidData.videos);
-      }
-    } catch (err) {
-      console.error("Failed to load profile or videos:", err);
-    }
-  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -74,7 +55,7 @@ export default function TikTokPage() {
       const urlError = urlParams.get("error");
 
       if (urlStatus === "connected") {
-        setNotice("Successfully connected TikTok Developer Sandbox account!");
+        setNotice("تم ربط حساب تيك توك بنجاح!");
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
@@ -87,7 +68,7 @@ export default function TikTokPage() {
     fetchStatus();
   }, [fetchStatus]);
 
-  // Compute Aggregate Channel Metrics from Real Video Ingestion
+  // Compute Real Aggregate Channel Metrics from Real Ingested Videos
   const aggregateMetrics = useMemo(() => {
     if (!videos || videos.length === 0) {
       return {
@@ -119,6 +100,24 @@ export default function TikTokPage() {
     };
   }, [videos]);
 
+  // Handle Manual Sync
+  const handleManualSync = async () => {
+    setNotice(null);
+    setErrorMessage(null);
+    try {
+      const res = await triggerSync();
+      if (res.status === "success") {
+        setNotice(
+          `تمت المزامنة بنجاح: تم معالجة ${res.videosProcessed || 0} فيديو، وتسجيل ${res.snapshotsCreated || 0} لقطة تحليلية.`
+        );
+      } else if (res.status === "skipped") {
+        setNotice(res.message || "المزامنة جارية بالفعل.");
+      }
+    } catch (err) {
+      setErrorMessage(err.message || "فشلت عملية المزامنة.");
+    }
+  };
+
   // Handle Connect TikTok OAuth
   const handleConnect = async () => {
     setActionLoading(true);
@@ -128,10 +127,10 @@ export default function TikTokPage() {
       if (data.authUrl) {
         window.location.href = data.authUrl;
       } else {
-        throw new Error(data.error || "Failed to generate authorization URL.");
+        throw new Error(data.error || "فشل في توليد رابط تسجيل الدخول.");
       }
     } catch (err) {
-      setErrorMessage(err.message || "Failed to initialize TikTok login.");
+      setErrorMessage(err.message || "فشل في بدء تسجيل الدخول إلى تيك توك.");
       setActionLoading(false);
     }
   };
@@ -150,13 +149,13 @@ export default function TikTokPage() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Token refresh failed");
+        throw new Error(data.error || "فشل تحديث رمز المصادقة");
       }
 
-      setNotice("TikTok access token refreshed successfully.");
+      setNotice("تم تحديث رمز المصادقة بنجاح.");
       await fetchStatus();
     } catch (err) {
-      setErrorMessage(err.message || "Failed to refresh token. Reconnection may be required.");
+      setErrorMessage(err.message || "فشل تحديث الرمز. قد يتطلب إعادة الربط.");
       setConnection((prev) => ({
         ...prev,
         status: "requires_reconnection",
@@ -169,7 +168,7 @@ export default function TikTokPage() {
 
   // Handle Disconnect
   const handleDisconnect = async () => {
-    if (!confirm("Are you sure you want to disconnect your TikTok account?")) return;
+    if (!confirm("هل أنت متأكد من رغبتك في إلغاء ربط حساب تيك توك؟")) return;
 
     setActionLoading(true);
     setNotice(null);
@@ -181,15 +180,13 @@ export default function TikTokPage() {
       });
 
       if (!res.ok) {
-        throw new Error("Failed to disconnect.");
+        throw new Error("فشل إلغاء الربط.");
       }
 
-      setProfile(null);
-      setVideos([]);
-      setNotice("TikTok account has been disconnected.");
+      setNotice("تم إلغاء ربط حساب تيك توك.");
       await fetchStatus();
     } catch (err) {
-      setErrorMessage(err.message || "Failed to disconnect.");
+      setErrorMessage(err.message || "حدث خطأ أثناء إلغاء الربط.");
     } finally {
       setActionLoading(false);
     }
@@ -208,18 +205,18 @@ export default function TikTokPage() {
   const getStatusBadge = () => {
     switch (connection.status) {
       case "connected":
-        return <Badge variant="success" size="md">Connected</Badge>;
+        return <Badge variant="success" size="md">متصل ✓</Badge>;
       case "refreshing":
-        return <Badge variant="warning" size="md">Refreshing...</Badge>;
+        return <Badge variant="warning" size="md">جاري التحديث...</Badge>;
       case "requires_reconnection":
-        return <Badge variant="danger" size="md">Requires Reconnection</Badge>;
+        return <Badge variant="danger" size="md">يتطلب إعادة الربط</Badge>;
       case "expired":
-        return <Badge variant="danger" size="md">Token Expired</Badge>;
+        return <Badge variant="danger" size="md">انتهت الصلاحية</Badge>;
       case "error":
-        return <Badge variant="danger" size="md">Connection Error</Badge>;
+        return <Badge variant="danger" size="md">خطأ في الاتصال</Badge>;
       case "disconnected":
       default:
-        return <Badge variant="default" size="md">Not Connected</Badge>;
+        return <Badge variant="default" size="md">غير متصل</Badge>;
     }
   };
 
@@ -248,24 +245,24 @@ export default function TikTokPage() {
   return (
     <div className={styles.page}>
       <Header
-        title="TikTok Developer Sandbox"
-        subtitle="Account Overview, Content Analytics & Synchronization Engine"
+        title="تيك توك — مركز البيانات والتحليلات"
+        subtitle="نظرة عامة على الحساب، تحليلات الفيديوهات ومحرك المزامنة الفورية"
         actions={
           isConnected && (
             <Button
               variant="primary"
               size="sm"
-              onClick={fetchProfileAndVideos}
-              disabled={isRefreshing}
+              onClick={handleManualSync}
+              disabled={syncing || isRefreshing}
             >
-              Sync Now
+              {syncing ? "جاري المزامنة..." : "مزامنة الآن 🔄"}
             </Button>
           )
         }
       />
 
       <div className={styles.content}>
-        {/* Notice Banners */}
+        {/* Notice & Error Banners */}
         {notice && <div className={styles.noticeBanner}>✓ {notice}</div>}
 
         {(errorMessage || connection.lastError) && (
@@ -274,16 +271,14 @@ export default function TikTokPage() {
             <Button
               variant="secondary"
               size="xs"
-              onClick={() => {
-                setErrorMessage(null);
-              }}
+              onClick={() => setErrorMessage(null)}
             >
-              Dismiss
+              إغلاق
             </Button>
           </div>
         )}
 
-        {/* CONNECTION STATUS CARD */}
+        {/* CONNECTION & REALTIME SYNC STATUS CARD */}
         <div
           className={`${styles.connectionCard} ${
             isConnected
@@ -295,19 +290,17 @@ export default function TikTokPage() {
         >
           <div className={styles.connectionHeader}>
             <div className={styles.connectionLeft}>
-              {connection.avatarUrl ? (
+              {connection.avatarUrl || profile?.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={connection.avatarUrl}
-                  alt={connection.displayName || "TikTok"}
+                  src={connection.avatarUrl || profile?.avatarUrl}
+                  alt={connection.displayName || profile?.username || "تيك توك"}
                   className={styles.avatar}
                 />
               ) : (
                 <div className={styles.avatarPlaceholder}>
                   {isConnected
-                    ? connection.username
-                      ? connection.username.charAt(0).toUpperCase()
-                      : "TK"
+                    ? (connection.username || profile?.username || "TK").charAt(0).toUpperCase()
                     : "TK"}
                 </div>
               )}
@@ -315,21 +308,22 @@ export default function TikTokPage() {
               <div className={styles.connectionTitleGroup}>
                 <div className={styles.connectionTitleRow}>
                   <div className={getDotClass()} />
-                  <h4 className={styles.connectionTitle}>TikTok</h4>
+                  <h4 className={styles.connectionTitle}>حساب تيك توك</h4>
                   {getStatusBadge()}
+                  {syncing && <Badge variant="warning" size="sm">جاري مزامنة البيانات...</Badge>}
                 </div>
 
                 <p className={styles.connectionSubtitle}>
                   {isConnected && (
                     <span>
-                      {connection.username ? `@${connection.username}` : "TikTok Sandbox Account"}
+                      {connection.username ? `@${connection.username}` : "حساب تيك توك المرتبط"}
                       {connection.displayName && ` (${connection.displayName})`}
                     </span>
                   )}
                   {isDisconnected &&
-                    "Connect your TikTok Developer Sandbox account to track content and analytics."}
-                  {isRefreshing && "Refreshing credentials with TikTok OAuth server..."}
-                  {isError && "OAuth credentials expired or invalid. Please re-authenticate."}
+                    "قم بربط حساب TikTok Developer Sandbox لتتبع المحتوى والتحليلات مباشرة."}
+                  {isRefreshing && "جاري تحديث بيانات الاعتماد مع خادم تيك توك..."}
+                  {isError && "انتهت صلاحية المصادقة. يرجى إعادة تسجيل الدخول."}
                 </p>
               </div>
             </div>
@@ -343,7 +337,7 @@ export default function TikTokPage() {
                   onClick={handleConnect}
                   disabled={isRefreshing}
                 >
-                  Connect TikTok
+                  ربط حساب تيك توك
                 </Button>
               )}
 
@@ -353,17 +347,17 @@ export default function TikTokPage() {
                     variant="secondary"
                     size="sm"
                     onClick={handleRefresh}
-                    disabled={isRefreshing}
+                    disabled={isRefreshing || syncing}
                   >
-                    {isRefreshing ? "Refreshing..." : "Refresh Connection"}
+                    {isRefreshing ? "جاري التحديث..." : "تحديث الاتصال"}
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleDisconnect}
-                    disabled={isRefreshing}
+                    disabled={isRefreshing || syncing}
                   >
-                    Disconnect
+                    إلغاء الربط
                   </Button>
                 </>
               )}
@@ -375,64 +369,70 @@ export default function TikTokPage() {
                   onClick={handleConnect}
                   disabled={isRefreshing}
                 >
-                  Reconnect
+                  إعادة الاتصال
                 </Button>
               )}
             </div>
           </div>
 
-          {isConnected && connection.connectedAt && (
+          {/* Sync Metadata & Data Freshness */}
+          {isConnected && (
             <div className={styles.connectionMeta}>
-              <span>Connected: {new Date(connection.connectedAt).toLocaleDateString()}</span>
-              {connection.lastUpdated && (
-                <span>Last Updated: {new Date(connection.lastUpdated).toLocaleTimeString()}</span>
-              )}
+              <span>تاريخ الربط: {connection.connectedAt ? new Date(connection.connectedAt).toLocaleDateString("ar-EG") : "نشط"}</span>
+              <span>
+                آخر مزامنة:{" "}
+                {syncStatus.completedAt
+                  ? new Date(syncStatus.completedAt).toLocaleTimeString("ar-EG")
+                  : connection.lastUpdated
+                  ? new Date(connection.lastUpdated).toLocaleTimeString("ar-EG")
+                  : "الآن"}
+              </span>
+              <span>المزامنة التلقائية: كل 15 دقيقة</span>
             </div>
           )}
         </div>
 
-        {/* ACCOUNT METRICS (Real Live Aggregated Numbers from Content) */}
+        {/* REALTIME CHANNEL METRICS */}
         {isConnected && (
           <div className={styles.metricsGrid}>
             <StatCard
-              label="Total Views"
-              value={aggregateMetrics.totalViews.toLocaleString()}
-              change="live"
+              label="إجمالي المشاهدات"
+              value={videosLoading ? "..." : aggregateMetrics.totalViews.toLocaleString()}
+              change="مباشر"
               changeType="positive"
-              period="Across all tracked videos"
+              period="من جميع الفيديوهات المسجلة"
             />
             <StatCard
-              label="Total Likes"
-              value={aggregateMetrics.totalLikes.toLocaleString()}
-              change="❤️ engagement"
+              label="إجمالي الإعجابات"
+              value={videosLoading ? "..." : aggregateMetrics.totalLikes.toLocaleString()}
+              change="❤️ تفاعل"
               changeType="positive"
-              period="Direct audience likes"
+              period="إعجابات الجمهور الحقيقية"
             />
             <StatCard
-              label="Total Comments"
-              value={aggregateMetrics.totalComments.toLocaleString()}
-              change="💬 conversations"
+              label="إجمالي التعليقات"
+              value={videosLoading ? "..." : aggregateMetrics.totalComments.toLocaleString()}
+              change="💬 محادثات"
               changeType="neutral"
-              period="Customer inquiries"
+              period="استفسارات العملاء المباشرة"
             />
             <StatCard
-              label="Avg Engagement Rate"
-              value={aggregateMetrics.avgEngagement}
-              suffix=""
+              label="معدل التفاعل العام"
+              value={videosLoading ? "..." : aggregateMetrics.avgEngagement}
               changeType="positive"
-              period={`${videos.length} videos tracked`}
+              period={`تم تتبع ${videos.length} فيديو`}
             />
           </div>
         )}
 
-        {/* VIDEO INTELLIGENCE CATALOG (CARDS GRID & TABLE TOGGLE) */}
+        {/* VIDEO INTELLIGENCE CATALOG */}
         {isConnected && (
           <Card glow={true}>
             <div className={styles.catalogHeader}>
               <div className={styles.catalogTitleGroup}>
-                <h3 className={styles.catalogTitle}>Video Intelligence Catalog</h3>
+                <h3 className={styles.catalogTitle}>سجل ذكاء وتحليلات الفيديوهات</h3>
                 <p className={styles.catalogSubtitle}>
-                  Real videos and live engagement metrics fetched from your TikTok account
+                  بيانات فورية من قاعدة البيانات • تتحدث تلقائياً مع كل مزامنة جديدة
                 </p>
               </div>
 
@@ -442,23 +442,27 @@ export default function TikTokPage() {
                   className={`${styles.toggleBtn} ${viewMode === "cards" ? styles.activeToggle : ""}`}
                   onClick={() => setViewMode("cards")}
                 >
-                  <span>🎴 Video Cards</span>
+                  <span>🎴 كروت الفيديوهات</span>
                 </button>
                 <button
                   type="button"
                   className={`${styles.toggleBtn} ${viewMode === "table" ? styles.activeToggle : ""}`}
                   onClick={() => setViewMode("table")}
                 >
-                  <span>📋 Table</span>
+                  <span>📋 جدول البيانات</span>
                 </button>
               </div>
             </div>
 
-            {videos.length === 0 ? (
+            {videosLoading && videos.length === 0 ? (
               <div className={styles.emptyState}>
-                <p className={styles.emptyStateTitle}>No videos available yet</p>
+                <p className={styles.emptyStateTitle}>جاري تحميل الفيديوهات من قاعدة البيانات...</p>
+              </div>
+            ) : videos.length === 0 ? (
+              <div className={styles.emptyState}>
+                <p className={styles.emptyStateTitle}>لا توجد فيديوهات مسجلة حتى الآن</p>
                 <p className={styles.emptyStateText}>
-                  Click &quot;Sync Now&quot; to fetch your latest videos from TikTok.
+                  اضغط على زر &quot;مزامنة الآن&quot; بالأعلى لجلب الفيديوهات والتحليلات من تيك توك.
                 </p>
               </div>
             ) : viewMode === "cards" ? (
@@ -478,7 +482,7 @@ export default function TikTokPage() {
                       ) : (
                         <div className={styles.thumbnailPlaceholder}>
                           <span className={styles.playIcon}>▶</span>
-                          <span style={{ fontSize: "11px" }}>TikTok Video</span>
+                          <span style={{ fontSize: "11px" }}>فيديو تيك توك</span>
                         </div>
                       )}
 
@@ -489,40 +493,40 @@ export default function TikTokPage() {
                       ) : null}
 
                       <span className={styles.dateBadge}>
-                        {vid.publishTime ? new Date(vid.publishTime).toLocaleDateString() : ""}
+                        {vid.publishTime ? new Date(vid.publishTime).toLocaleDateString("ar-EG") : ""}
                       </span>
                     </div>
 
                     {/* Card Content Body */}
                     <div className={styles.cardBody}>
                       <h4 className={styles.cardTitle} title={vid.title}>
-                        {vid.title || "Untitled TikTok Video"}
+                        {vid.title || "فيديو تيك توك بدون عنوان"}
                       </h4>
 
                       {/* Video Metrics Bar */}
                       <div className={styles.statsRow}>
                         <div className={styles.statItem}>
-                          <span className={styles.statLabel}>Views</span>
+                          <span className={styles.statLabel}>المشاهدات</span>
                           <span className={styles.statVal}>
-                            {vid.metrics?.views?.toLocaleString() ?? 0}
+                            {vid.metrics?.views?.toLocaleString() ?? "—"}
                           </span>
                         </div>
                         <div className={styles.statItem}>
-                          <span className={styles.statLabel}>Likes</span>
+                          <span className={styles.statLabel}>الإعجابات</span>
                           <span className={styles.statVal}>
-                            ❤️ {vid.metrics?.likes?.toLocaleString() ?? 0}
+                            ❤️ {vid.metrics?.likes?.toLocaleString() ?? "—"}
                           </span>
                         </div>
                         <div className={styles.statItem}>
-                          <span className={styles.statLabel}>Comments</span>
+                          <span className={styles.statLabel}>التعليقات</span>
                           <span className={styles.statVal}>
-                            💬 {vid.metrics?.comments?.toLocaleString() ?? 0}
+                            💬 {vid.metrics?.comments?.toLocaleString() ?? "—"}
                           </span>
                         </div>
                         <div className={styles.statItem}>
-                          <span className={styles.statLabel}>Shares</span>
+                          <span className={styles.statLabel}>المشاركات</span>
                           <span className={styles.statVal}>
-                            ↗️ {vid.metrics?.shares?.toLocaleString() ?? 0}
+                            ↗️ {vid.metrics?.shares?.toLocaleString() ?? "—"}
                           </span>
                         </div>
                       </div>
@@ -530,7 +534,7 @@ export default function TikTokPage() {
                       {/* Card Footer */}
                       <div className={styles.cardFooter}>
                         <span className={styles.engagementVal}>
-                          Engagement: {vid.metrics?.engagementRate ?? 0}%
+                          معدل التفاعل: {vid.metrics?.engagementRate ?? 0}%
                         </span>
 
                         {vid.shareUrl ? (
@@ -540,7 +544,7 @@ export default function TikTokPage() {
                             rel="noopener noreferrer"
                             className={styles.watchLink}
                           >
-                            Watch on TikTok ↗
+                            مشاهدة على تيك توك ↗
                           </a>
                         ) : (
                           <span style={{ fontSize: "11px", color: "var(--radar-text-muted)" }}>
@@ -558,38 +562,38 @@ export default function TikTokPage() {
                 <table className={styles.table}>
                   <thead>
                     <tr>
-                      <th>Video Title</th>
-                      <th>Published</th>
-                      <th>Views</th>
-                      <th>Likes</th>
-                      <th>Comments</th>
-                      <th>Shares</th>
-                      <th>Engagement</th>
+                      <th>عنوان الفيديو</th>
+                      <th>تاريخ النشر</th>
+                      <th>المشاهدات</th>
+                      <th>الإعجابات</th>
+                      <th>التعليقات</th>
+                      <th>المشاركات</th>
+                      <th>التفاعل</th>
                     </tr>
                   </thead>
                   <tbody>
                     {videos.map((vid) => (
                       <tr key={vid.id}>
                         <td className={styles.videoTitleCell}>
-                          <span className={styles.videoTitle}>{vid.title || "Untitled Video"}</span>
+                          <span className={styles.videoTitle}>{vid.title || "فيديو بدون عنوان"}</span>
                           <span className={styles.videoMeta}>
-                            ID: {vid.id} {vid.duration ? `• Duration: ${vid.duration}s` : ""}
+                            ID: {vid.id} {vid.duration ? `• المدة: ${vid.duration} ثانية` : ""}
                           </span>
                         </td>
                         <td>
-                          {vid.publishTime ? new Date(vid.publishTime).toLocaleDateString() : "—"}
+                          {vid.publishTime ? new Date(vid.publishTime).toLocaleDateString("ar-EG") : "—"}
                         </td>
                         <td className={styles.monoCell}>
-                          {vid.metrics?.views?.toLocaleString() ?? 0}
+                          {vid.metrics?.views?.toLocaleString() ?? "—"}
                         </td>
                         <td className={styles.monoCell}>
-                          ❤️ {vid.metrics?.likes?.toLocaleString() ?? 0}
+                          ❤️ {vid.metrics?.likes?.toLocaleString() ?? "—"}
                         </td>
                         <td className={styles.monoCell}>
-                          💬 {vid.metrics?.comments?.toLocaleString() ?? 0}
+                          💬 {vid.metrics?.comments?.toLocaleString() ?? "—"}
                         </td>
                         <td className={styles.monoCell}>
-                          ↗️ {vid.metrics?.shares?.toLocaleString() ?? 0}
+                          ↗️ {vid.metrics?.shares?.toLocaleString() ?? "—"}
                         </td>
                         <td className={styles.monoCell}>
                           <span className={styles.highlightGreen}>

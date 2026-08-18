@@ -14,10 +14,10 @@ export default function GoalProgress({
 
   const getStatusBadge = () => {
     switch (status) {
-      case "ahead": return { variant: "success", label: "Ahead" };
-      case "on_track": return { variant: "accent", label: "On Track" };
-      case "at_risk": return { variant: "warning", label: "At Risk" };
-      case "behind": return { variant: "danger", label: "Behind" };
+      case "ahead": return { variant: "success", label: "متقدم عن الخطة" };
+      case "on_track": return { variant: "accent", label: "ضمن المسار" };
+      case "at_risk": return { variant: "warning", label: "معرض للخطر" };
+      case "behind": return { variant: "danger", label: "متأخر عن الخطة" };
       default: return { variant: "default", label: status };
     }
   };
@@ -29,7 +29,7 @@ export default function GoalProgress({
       <div className={styles.topRow}>
         <div>
           <h4 className={styles.title}>{title}</h4>
-          {deadline && <span className={styles.deadline}>Target: {deadline}</span>}
+          {deadline && <span className={styles.deadline}>الموعد: {deadline}</span>}
         </div>
         <Badge variant={badgeInfo.variant} size="sm">
           {badgeInfo.label}
@@ -39,7 +39,7 @@ export default function GoalProgress({
       <div className={styles.progressSection}>
         <div className={styles.numbersRow}>
           <span className={styles.current}>{current} {unit}</span>
-          <span className={styles.target}>Target: {target} {unit} ({percentage}%)</span>
+          <span className={styles.target}>المستهدف: {target} {unit} ({percentage}%)</span>
         </div>
         <div className={styles.progressBarBg}>
           <div
@@ -51,7 +51,7 @@ export default function GoalProgress({
 
       {paceRecommendation && (
         <div className={styles.paceNote}>
-          <span className={styles.paceLabel}>Required Pace:</span> {paceRecommendation}
+          <span className={styles.paceLabel}>المعدل المطلوب:</span> {paceRecommendation}
         </div>
       )}
     </div>

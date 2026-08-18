@@ -40,15 +40,15 @@ export default function SystemHealth() {
 
   const getStatusBadge = (status, configured) => {
     if (!configured && status === "unconfigured") {
-      return <Badge variant="warning" size="sm">Unconfigured</Badge>;
+      return <Badge variant="warning" size="sm">غير مهيأ</Badge>;
     }
     if (status === "connected" || status === "ready" || status === "success") {
-      return <Badge variant="success" size="sm">Healthy</Badge>;
+      return <Badge variant="success" size="sm">يعمل بكفاءة ✓</Badge>;
     }
     if (status === "disconnected" || status === "ready_to_connect") {
-      return <Badge variant="default" size="sm">Ready to Connect</Badge>;
+      return <Badge variant="default" size="sm">جاهز للربط</Badge>;
     }
-    return <Badge variant="danger" size="sm">Error</Badge>;
+    return <Badge variant="danger" size="sm">خطأ</Badge>;
   };
 
   return (
@@ -56,28 +56,28 @@ export default function SystemHealth() {
       <div className={styles.header}>
         <div className={styles.titleGroup}>
           <span className={styles.indicator} />
-          <h4 className={styles.title}>System Diagnostics & Health</h4>
+          <h4 className={styles.title}>حالة وتكامل الأنظمة</h4>
         </div>
         <Button variant="ghost" size="sm" onClick={fetchHealth} disabled={loading}>
-          {loading ? "Checking..." : "Refresh"}
+          {loading ? "جاري الفحص..." : "تحديث الفحص"}
         </Button>
       </div>
 
       <div className={styles.grid}>
         <div className={styles.item}>
-          <span className={styles.itemName}>Firebase Firestore</span>
+          <span className={styles.itemName}>قاعدة بيانات فايربيس (Firestore)</span>
           {getStatusBadge(health?.services?.firebase?.status, health?.services?.firebase?.configured)}
         </div>
         <div className={styles.item}>
-          <span className={styles.itemName}>TikTok Developer Sandbox</span>
+          <span className={styles.itemName}>تكامل تيك توك (TikTok Sandbox)</span>
           {getStatusBadge(health?.services?.tiktokConnection?.status, health?.services?.tiktokConnection?.configured)}
         </div>
         <div className={styles.item}>
-          <span className={styles.itemName}>OpenRouter AI Provider</span>
+          <span className={styles.itemName}>مزود الذكاء الاصطناعي (OpenRouter AI)</span>
           {getStatusBadge(health?.services?.aiProvider?.status, health?.services?.aiProvider?.configured)}
         </div>
         <div className={styles.item}>
-          <span className={styles.itemName}>Data Sync Engine</span>
+          <span className={styles.itemName}>محرك المزامنة الفورية (Sync Engine)</span>
           {getStatusBadge(health?.services?.syncEngine?.status || "idle", true)}
         </div>
       </div>

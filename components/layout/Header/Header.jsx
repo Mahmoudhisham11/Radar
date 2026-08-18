@@ -3,8 +3,8 @@ import Badge from "@/components/ui/Badge/Badge";
 import NotificationBell from "./NotificationBell";
 
 export default function Header({
-  title = "Command Center",
-  subtitle = "AI Marketing & Growth Intelligence System",
+  title = "مركز القيادة",
+  subtitle = "نظام ذكاء التسويق وإدارة النمو المتقدم",
   actions,
 }) {
   return (
@@ -12,7 +12,7 @@ export default function Header({
       <div className={styles.left}>
         <div className={styles.titleRow}>
           <h1 className={styles.title}>{title}</h1>
-          <Badge variant="accent" size="sm">Live Feed</Badge>
+          <Badge variant="accent" size="sm">مباشر</Badge>
         </div>
         {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
       </div>
@@ -23,8 +23,8 @@ export default function Header({
         <div className={styles.userBadge}>
           <div className={styles.avatar}>HQ</div>
           <div className={styles.meta}>
-            <span className={styles.role}>Owner Account</span>
-            <span className={styles.status}>Internal Workspace</span>
+            <span className={styles.role}>حساب المالك</span>
+            <span className={styles.status}>مساحة العمل</span>
           </div>
         </div>
       </div>
