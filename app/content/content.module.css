@@ -14,6 +14,62 @@
   margin: 0 auto;
 }
 
+@media (max-width: 768px) {
+  .content {
+    padding: var(--radar-space-md);
+    gap: var(--radar-space-md);
+  }
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--radar-space-md);
+  flex-wrap: wrap;
+  background: var(--radar-surface);
+  border: 1px solid var(--radar-border);
+  border-radius: var(--radar-radius-lg);
+  padding: 12px var(--radar-space-lg);
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.filterLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--radar-text-muted);
+  margin-left: 4px;
+}
+
+.periodBtn, .rankBtn {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--radar-radius-sm);
+  background: var(--radar-surface-subtle);
+  border: 1px solid var(--radar-border);
+  color: var(--radar-text-secondary);
+  cursor: pointer;
+  transition: all var(--radar-transition-fast);
+}
+
+.periodBtn:hover, .rankBtn:hover {
+  background: var(--radar-surface-hover);
+  color: var(--radar-text-primary);
+}
+
+.periodBtn.active, .rankBtn.active {
+  background: var(--radar-accent-subtle);
+  border-color: var(--radar-accent);
+  color: var(--radar-accent);
+}
+
 .twoColumnGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -23,6 +79,7 @@
 @media (max-width: 1100px) {
   .twoColumnGrid {
     grid-template-columns: 1fr;
+    gap: var(--radar-space-md);
   }
 }
 
@@ -46,19 +103,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--radar-space-sm);
 }
 
 .hookScore {
   font-size: 12px;
   font-family: var(--radar-font-mono);
   color: var(--radar-accent);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .hookText {
   font-size: 13px;
   color: var(--radar-text-primary);
-  font-style: italic;
   line-height: 1.5;
 }
 
@@ -70,6 +127,7 @@
   color: var(--radar-text-muted);
   font-family: var(--radar-font-mono);
   margin-top: 4px;
+  flex-wrap: wrap;
 }
 
 .recTopic {
@@ -81,9 +139,22 @@
 .recDescription {
   font-size: 12px;
   color: var(--radar-text-secondary);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
-.recActions {
-  margin-top: 6px;
+.metricsOverviewGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--radar-space-md);
+}
+
+.emptyState {
+  padding: var(--radar-space-2xl);
+  text-align: center;
+  background: var(--radar-surface-subtle);
+  border: 1px dashed var(--radar-border);
+  border-radius: var(--radar-radius-lg);
+  color: var(--radar-text-muted);
+  font-size: 13px;
+  line-height: 1.6;
 }

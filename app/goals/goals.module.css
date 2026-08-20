@@ -19,3 +19,14 @@
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   gap: var(--radar-space-lg);
 }
+
+.emptyState {
+  padding: var(--radar-space-2xl);
+  text-align: center;
+  background: var(--radar-surface);
+  border: 1px dashed var(--radar-border);
+  border-radius: var(--radar-radius-lg);
+  color: var(--radar-text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}

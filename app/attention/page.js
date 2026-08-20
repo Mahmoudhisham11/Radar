@@ -69,83 +69,34 @@ export default function AttentionPage() {
 
       <div className={styles.content}>
         {/* CRITICAL ATTENTION & UNREPLIED TIKTOK COMMENTS */}
-        <div className={styles.categoryGroup}>
-          <h3 className={styles.categoryTitle}>
-            <Badge variant="danger" size="sm" dot>حرجة وعاجلة</Badge>
-            تتطلب اتخاذ إجراء فوري
-          </h3>
-          <div className={styles.bannerList}>
-            {/* Real Unreplied TikTok Comments */}
-            {unrepliedComments.map((comment) => (
-              <AttentionBanner
-                key={comment.id}
-                severity="critical"
-                title={`💬 تعليق جديد من ${comment.authorName} على ${comment.videoTitle || "فيديو تيك توك"}`}
-                message={`"${comment.text}"`}
-                actionLabel="✓ تم الرد على العميل"
-                onAction={() => handleMarkReplied(comment.id)}
-              />
-            ))}
-
-            <AttentionBanner
-              severity="critical"
-              title="4 عملاء محتملين في الانتظار > 48 ساعة"
-              message="عملاء مهتمون بنظام الكاشير من حملة الفيديو الأخيرة لم يتم التواصل معهم بعد."
-              actionLabel="معالجة الآن"
-            />
-            <AttentionBanner
-              severity="critical"
-              title="تنبيه استبقاء قطاع السوبرماركت"
-              message="3 فروع سوبرماركت لم تسجل إغلاق ورديات كاشير لمدة 4 أيام عمل متتالية."
-              actionLabel="التواصل مع الحسابات"
-            />
+        {unrepliedComments.length > 0 ? (
+          <div className={styles.categoryGroup}>
+            <h3 className={styles.categoryTitle}>
+              <Badge variant="danger" size="sm" dot>حرجة وعاجلة</Badge>
+              استفسارات وتعليقات العملاء التي تتطلب رداً فورياً ({unrepliedComments.length})
+            </h3>
+            <div className={styles.bannerList}>
+              {unrepliedComments.map((comment) => (
+                <AttentionBanner
+                  key={comment.id}
+                  severity="critical"
+                  title={`💬 تعليق جديد من ${comment.authorName} على ${comment.videoTitle || "فيديو تيك توك"}`}
+                  message={`"${comment.text}"`}
+                  actionLabel="✓ تم الرد على العميل"
+                  onAction={() => handleMarkReplied(comment.id)}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-
-        <div className={styles.categoryGroup}>
-          <h3 className={styles.categoryTitle}>
-            <Badge variant="warning" size="sm" dot>تحذير</Badge>
-            مسار الأهداف وتدفق العملاء
-          </h3>
-          <div className={styles.bannerList}>
-            <AttentionBanner
-              severity="warning"
-              title="معدل جذب العملاء أقل بـ 15% من المستهدف الشهري"
-              message="المعدل الحالي 9.5 عميل/أسبوع مقارنة بالمستهدف المطلوب 15 عميل/أسبوع."
-              actionLabel="تعديل الوتيرة"
-            />
+        ) : (
+          <div className={styles.emptyNotice}>
+            <span className={styles.emptyIcon}>🎉</span>
+            <h4 className={styles.emptyTitle}>لا توجد تنبيهات عاجلة أو معلقة حالياً</h4>
+            <p className={styles.emptySub}>
+              جميع استفسارات وتعليقات العملاء تم الرد عليها بالكامل. يواصل رادار مراقبة التفاعلات الجديدة ومزامنتها فورياً.
+            </p>
           </div>
-        </div>
-
-        <div className={styles.categoryGroup}>
-          <h3 className={styles.categoryTitle}>
-            <Badge variant="opportunity" size="sm" dot>فرصة نمو</Badge>
-            إشارات محتوى عالية التفاعل
-          </h3>
-          <div className={styles.bannerList}>
-            <AttentionBanner
-              severity="opportunity"
-              title="فيديو كشف عجز ورديات الكاشير يحقق تفاعل 2.4× أعلى من المعدل"
-              message="موضوع 'منع سرقات الكاشير وجرد الدرج' يولد كثافة استفسارات شراء غير مسبوقة."
-              actionLabel="تكرار الفكرة"
-            />
-          </div>
-        </div>
-
-        <div className={styles.categoryGroup}>
-          <h3 className={styles.categoryTitle}>
-            <Badge variant="reminder" size="sm" dot>تذكير</Badge>
-            المهام الروتينية
-          </h3>
-          <div className={styles.bannerList}>
-            <AttentionBanner
-              severity="reminder"
-              title="موعد نشر فيديو تيك توك الجديد"
-              message="محرك الأهداف يوصي بنشر فيديوهين جديدين قبل يوم الخميس للحفاظ على معدل النمو."
-              actionLabel="عرض قائمة المحتوى"
-            />
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

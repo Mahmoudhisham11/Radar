@@ -96,3 +96,14 @@
   gap: var(--radar-space-sm);
   margin-top: 4px;
 }
+
+.emptyState {
+  padding: var(--radar-space-2xl);
+  text-align: center;
+  background: var(--radar-surface-subtle);
+  border: 1px dashed var(--radar-border);
+  border-radius: var(--radar-radius-lg);
+  color: var(--radar-text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}

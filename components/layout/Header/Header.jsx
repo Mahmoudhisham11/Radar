@@ -11,15 +11,15 @@ export default function Header({
     <header className={styles.header}>
       <div className={styles.left}>
         <div className={styles.titleRow}>
-          <h1 className={styles.title}>{title}</h1>
+          <h1 className={styles.title} title={title}>{title}</h1>
           <Badge variant="accent" size="sm">مباشر</Badge>
         </div>
-        {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+        {subtitle && <p className={styles.subtitle} title={subtitle}>{subtitle}</p>}
       </div>
 
       <div className={styles.right}>
         <NotificationBell />
-        {actions}
+        {actions && <div className={styles.actions}>{actions}</div>}
         <div className={styles.userBadge}>
           <div className={styles.avatar}>HQ</div>
           <div className={styles.meta}>

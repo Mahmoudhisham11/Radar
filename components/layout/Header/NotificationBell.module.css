@@ -63,9 +63,10 @@
 .dropdown {
   position: absolute;
   top: calc(100% + 10px);
-  right: 0;
+  left: 0;
+  right: auto;
   width: 380px;
-  max-width: calc(100vw - 32px);
+  max-width: min(380px, calc(100vw - 32px));
   background: var(--radar-surface);
   border: 1px solid var(--radar-border);
   border-radius: var(--radar-radius-lg);
@@ -75,17 +76,32 @@
   animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+@media (max-width: 768px) {
+  .dropdown {
+    position: fixed;
+    top: 66px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: calc(100vw - 24px);
+    max-height: calc(100vh - 84px);
+    z-index: 999;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--radar-border-light);
+  }
+}
+
 @keyframes slideDown {
   0% { opacity: 0; transform: translateY(-8px); }
   100% { opacity: 1; transform: translateY(0); }
 }
 
 .dropdownHeader {
-  padding: var(--radar-space-md);
+  padding: 12px var(--radar-space-md);
   border-bottom: 1px solid var(--radar-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--radar-space-sm);
   background: var(--radar-surface-subtle);
 }
 
@@ -100,14 +116,14 @@
 
 .tabs {
   display: flex;
-  gap: 4px;
+  gap: 6px;
   padding: 8px var(--radar-space-md);
   background: var(--radar-surface);
   border-bottom: 1px solid var(--radar-border);
 }
 
 .tab {
-  padding: 4px 10px;
+  padding: 5px 12px;
   font-size: 11px;
   font-weight: 600;
   border-radius: var(--radar-radius-sm);
@@ -133,7 +149,7 @@
   border-bottom: 1px solid var(--radar-border);
   display: flex;
   flex-direction: column;
-  gap: var(--radar-space-xs);
+  gap: 6px;
   transition: background var(--radar-transition-fast);
 }
 
@@ -142,7 +158,7 @@
 }
 
 .commentItem.unreplied {
-  border-left: 3px solid var(--radar-warning);
+  border-inline-start: 3px solid var(--radar-warning);
 }
 
 .commentItem.replied {
@@ -185,9 +201,9 @@
 .commentText {
   font-size: 13px;
   color: var(--radar-text-primary);
-  line-height: 1.4;
+  line-height: 1.5;
   background: var(--radar-surface-subtle);
-  padding: 8px 10px;
+  padding: 8px 12px;
   border-radius: var(--radar-radius-sm);
   border: 1px solid var(--radar-border);
   margin-top: 2px;
@@ -201,7 +217,7 @@
 }
 
 .replyButton {
-  padding: 4px 10px;
+  padding: 5px 12px;
   font-size: 11px;
   font-weight: 600;
   border-radius: var(--radar-radius-sm);
@@ -230,4 +246,5 @@
   text-align: center;
   font-size: 12px;
   color: var(--radar-text-muted);
+  line-height: 1.6;
 }

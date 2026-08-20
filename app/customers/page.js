@@ -1,19 +1,22 @@
+"use client";
+
 import styles from "./customers.module.css";
 import Header from "@/components/layout/Header/Header";
 import StatCard from "@/components/ui/StatCard/StatCard";
 import Card from "@/components/ui/Card/Card";
-import Badge from "@/components/ui/Badge/Badge";
 import Button from "@/components/ui/Button/Button";
 
 export default function CustomersPage() {
+  const customers = [];
+
   return (
     <div className={styles.page}>
       <Header
-        title="Customer Intelligence"
-        subtitle="Paying Clients, Cohort Health & Acquisition Source Breakdown"
+        title="سجل وبيانات العملاء"
+        subtitle="متابعة الحسابات، القيمة الدائمة ومصادر الاستحواذ"
         actions={
           <Button variant="primary" size="sm">
-            Add Customer
+            + إضافة عميل جديد
           </Button>
         }
       />
@@ -21,80 +24,73 @@ export default function CustomersPage() {
       <div className={styles.content}>
         <div className={styles.metricsGrid}>
           <StatCard
-            label="Total Customers"
-            value="84"
-            change="+6"
-            changeType="positive"
-            period="new this month"
+            label="إجمالي العملاء"
+            value="0"
+            change="لا توجد بيانات"
+            changeType="neutral"
+            period="حسابات مسجلة"
           />
           <StatCard
-            label="Active Accounts"
-            value="79"
-            change="94%"
-            changeType="positive"
-            period="active retention"
+            label="الحسابات النشطة"
+            value="0"
+            change="0%"
+            changeType="neutral"
+            period="معدل النشاط"
           />
           <StatCard
-            label="Avg Lifetime Value"
-            prefix="EGP "
-            value="18,400"
-            change="+8.2%"
-            changeType="positive"
-            period="per business"
+            label="متوسط القيمة الدائمة (LTV)"
+            prefix="ج.م "
+            value="0"
+            change="0%"
+            changeType="neutral"
+            period="لكل عميل"
           />
           <StatCard
-            label="At-Risk Accounts"
-            value="3"
-            change="-2"
-            changeType="negative"
-            period="requiring check-in"
+            label="حسابات تحت المتابعة"
+            value="0"
+            change="0"
+            changeType="positive"
+            period="لا توجد حسابات معرضة للخطر"
           />
         </div>
 
         <Card
-          title="Customer Roster & Status"
-          subtitle="Real-time synchronized customer accounts"
+          title="قائمة العملاء والحالة"
+          subtitle="سجل حسابات العملاء الفعلي"
         >
-          <div className={styles.tableContainer}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Business Name</th>
-                  <th>Segment</th>
-                  <th>Acquisition Source</th>
-                  <th>Joined Date</th>
-                  <th>Total Spend</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className={styles.customerName}>Al-Madina Supermarket</td>
-                  <td>Retail / Grocery</td>
-                  <td><Badge variant="accent" size="sm">TikTok Video #14</Badge></td>
-                  <td>Aug 02, 2026</td>
-                  <td className={styles.monoCell}>EGP 24,000</td>
-                  <td><Badge variant="success" size="sm">Active</Badge></td>
-                </tr>
-                <tr>
-                  <td className={styles.customerName}>Bean & Leaf Café (3 branches)</td>
-                  <td>F&B / Hospitality</td>
-                  <td><Badge variant="accent" size="sm">TikTok Video #19</Badge></td>
-                  <td>Jul 18, 2026</td>
-                  <td className={styles.monoCell}>EGP 42,000</td>
-                  <td><Badge variant="success" size="sm">Active</Badge></td>
-                </tr>
-                <tr>
-                  <td className={styles.customerName}>Nile Pharmacy Group</td>
-                  <td>Pharmacy</td>
-                  <td><Badge variant="default" size="sm">Direct Referral</Badge></td>
-                  <td>Jun 11, 2026</td>
-                  <td className={styles.monoCell}>EGP 18,500</td>
-                  <td><Badge variant="warning" size="sm">At Risk</Badge></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          {customers.length === 0 ? (
+            <div className={styles.emptyTable}>
+              <p>لا يوجد عملاء مسجلون في النظام حالياً.</p>
+              <p>يمكنك تسجيل العملاء يدوياً أو ربط قنوات البيع وإدارة علاقات العملاء (CRM) لمزامنة الحسابات تلقائياً.</p>
+            </div>
+          ) : (
+            <div className={styles.tableContainer}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>اسم النشاط التجاري</th>
+                    <th>القطاع</th>
+                    <th>مصدر الاستحواذ</th>
+                    <th>تاريخ الانضمام</th>
+                    <th>إجمالي الإنفاق</th>
+                    <th>الحالة</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {customers.map((c) => (
+                    <tr key={c.id}>
+                      <td className={styles.customerName}>{c.name}</td>
+                      <td>{c.segment}</td>
+                      <td>{c.source}</td>
+                      <td>{c.joinedDate}</td>
+                      <td className={styles.monoCell}>{c.totalSpend}</td>
+                      <td>{c.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </Card>
       </div>
     </div>

@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:tiktok": "node scripts/test-phase1.mjs",
-    "test:phase2": "node scripts/test-phase2.mjs"
+    "test:phase2": "node scripts/test-phase2.mjs",
+    "test:phase3a": "node scripts/test-phase3a.mjs"
   },
   "dependencies": {
     "firebase": "^12.17.1",

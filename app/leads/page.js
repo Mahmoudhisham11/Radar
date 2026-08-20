@@ -1,27 +1,30 @@
+"use client";
+
 import styles from "./leads.module.css";
 import Header from "@/components/layout/Header/Header";
 import Card from "@/components/ui/Card/Card";
-import Badge from "@/components/ui/Badge/Badge";
 import Button from "@/components/ui/Button/Button";
 
 const PIPELINE_STAGES = [
-  { id: "new", name: "New Inbound", count: 12 },
-  { id: "contacted", name: "Contacted", count: 9 },
-  { id: "interested", name: "Interested", count: 7 },
-  { id: "demo", name: "Demo Booked", count: 5 },
-  { id: "negotiation", name: "Negotiation", count: 3 },
-  { id: "won", name: "Won", count: 2 },
+  { id: "new", name: "وارد جديد", count: 0 },
+  { id: "contacted", name: "تم التواصل", count: 0 },
+  { id: "interested", name: "مهتم", count: 0 },
+  { id: "demo", name: "حجز عرض", count: 0 },
+  { id: "negotiation", name: "مفاوضات", count: 0 },
+  { id: "won", name: "تم الإغلاق", count: 0 },
 ];
 
 export default function LeadsPage() {
+  const leads = [];
+
   return (
     <div className={styles.page}>
       <Header
-        title="Lead Pipeline Management"
-        subtitle="Inbound Marketing Funnel & High-Intent Conversion Tracking"
+        title="إدارة العملاء المحتملين"
+        subtitle="مسار متابعة واستقبال استفسارات الشراء وتحويلها لمبيعات"
         actions={
           <Button variant="primary" size="sm">
-            + New Lead
+            + إضافة عميل محتمل
           </Button>
         }
       />
@@ -39,44 +42,23 @@ export default function LeadsPage() {
 
         {/* Lead Details */}
         <Card
-          title="Active Leads Requiring Attention"
-          subtitle="Ordered by AI intent score and idle time"
+          title="قائمة العملاء المحتملين والمهتمين"
+          subtitle="متابعة الاستفسارات الواردة وفق الأولوية وسرعة الرد"
         >
-          <div className={styles.leadList}>
-            <div className={styles.leadItem}>
-              <div className={styles.leadHeader}>
-                <div className={styles.leadInfo}>
-                  <h4 className={styles.leadTitle}>Cairo Grill House (2 Branches)</h4>
-                  <span className={styles.leadSource}>Source: TikTok Video #21 • Stage: Demo Booked</span>
-                </div>
-                <Badge variant="danger" size="sm" dot>Idle &gt; 48h</Badge>
-              </div>
-              <p className={styles.leadNote}>
-                Owner asked about kitchen display screen integration and branch synchronization during live session.
-              </p>
-              <div className={styles.leadActions}>
-                <Button variant="primary" size="sm">Send WhatsApp Follow-up</Button>
-                <Button variant="ghost" size="sm">Mark as Contacted</Button>
-              </div>
+          {leads.length === 0 ? (
+            <div className={styles.emptyState}>
+              <p>لا يوجد عملاء محتملون في قائمة الانتظار حالياً.</p>
+              <p>يتم تسجيل العملاء تلقائياً عند تفاعلهم واستفسارهم من خلال التعليقات أو النماذج المتصلة.</p>
             </div>
-
-            <div className={styles.leadItem}>
-              <div className={styles.leadHeader}>
-                <div className={styles.leadInfo}>
-                  <h4 className={styles.leadTitle}>Delta Mini-Market Chain</h4>
-                  <span className={styles.leadSource}>Source: Direct DM • Stage: Interested</span>
+          ) : (
+            <div className={styles.leadList}>
+              {leads.map((lead) => (
+                <div key={lead.id} className={styles.leadItem}>
+                  {/* Real lead details */}
                 </div>
-                <Badge variant="accent" size="sm">High Intent</Badge>
-              </div>
-              <p className={styles.leadNote}>
-                Needs pricing breakdown for 5 barcode scanners and software licenses.
-              </p>
-              <div className={styles.leadActions}>
-                <Button variant="primary" size="sm">Send Proposal</Button>
-                <Button variant="ghost" size="sm">Schedule Demo</Button>
-              </div>
+              ))}
             </div>
-          </div>
+          )}
         </Card>
       </div>
     </div>
