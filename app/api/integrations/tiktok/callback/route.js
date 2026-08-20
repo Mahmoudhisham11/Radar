@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { tiktokService } from "@/integrations/tiktok";
+import { connectionRepository } from "@/lib/repositories/connectionRepository";
+import { TIKTOK_COOKIE_NAME } from "@/integrations/tiktok/auth/tiktokSession";
 import { logger } from "@/lib/logger";
 
 export async function GET(request) {
@@ -32,7 +34,22 @@ export async function GET(request) {
 
     const redirectTarget = new URL("/tiktok", baseUrl);
     redirectTarget.searchParams.set("status", "connected");
-    return NextResponse.redirect(redirectTarget.toString());
+
+    const response = NextResponse.redirect(redirectTarget.toString());
+
+    // Attach persistent session cookie so Vercel Serverless Lambdas never lose connection
+    const sessionCookie = connectionRepository.generateSessionCookie("tiktok");
+    if (sessionCookie) {
+      response.cookies.set(TIKTOK_COOKIE_NAME, sessionCookie, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+      });
+    }
+
+    return response;
   } catch (exchangeError) {
     logger.error("Failed to complete TikTok token exchange in callback", exchangeError);
     const redirectTarget = new URL("/tiktok", baseUrl);

@@ -16,8 +16,8 @@ export class TikTokService {
   /**
    * Get public connection status (safe for React UI)
    */
-  async getConnectionStatus() {
-    return tiktokAuth.getConnectionStatus();
+  async getConnectionStatus(sessionCookie = null) {
+    return tiktokAuth.getConnectionStatus(sessionCookie);
   }
 
   /**
@@ -28,29 +28,30 @@ export class TikTokService {
   }
 
   /**
-   * Handles OAuth callback: exchanges code, fetches profile, saves in Firestore and triggers sync
+   * Handles OAuth callback: exchanges code, fetches profile, saves in Firestore & Session, and triggers sync
    */
   async handleOAuthCallback(code) {
     const timer = logger.startTimer("TikTokService.handleOAuthCallback");
 
     // 1. Exchange code for access & refresh tokens
     const tokenData = await tiktokAuth.exchangeCodeForToken(code);
+    let userProfile = null;
 
     // 2. Fetch initial profile from Sandbox using access token
     try {
       const sandboxApi = new TikTokSandboxApi(tokenData.accessToken);
-      const profile = await sandboxApi.fetchUserProfile();
+      userProfile = await sandboxApi.fetchUserProfile();
 
-      if (profile) {
-        // Save profile in Firestore
-        await tiktokRepository.saveProfile(profile);
+      if (userProfile) {
+        // Save profile in Firestore / memory
+        await tiktokRepository.saveProfile(userProfile);
 
         // Update connection document with display metadata
         await connectionRepository.saveIntegration("tiktok", {
-          username: profile.username,
-          displayName: profile.displayName,
-          avatarUrl: profile.avatarUrl,
-          openId: profile.id,
+          username: userProfile.username,
+          displayName: userProfile.displayName,
+          avatarUrl: userProfile.avatarUrl,
+          openId: userProfile.id,
           status: CONNECTION_STATUS.CONNECTED,
           lastSyncedAt: new Date().toISOString(),
         });
@@ -59,7 +60,7 @@ export class TikTokService {
       logger.warn("Initial profile fetch after OAuth failed (continuing with connection)", profileError);
     }
 
-    // 3. Automatically trigger full synchronization for videos and metrics
+    // 3. Automatically trigger initial synchronization for videos and metrics
     try {
       await tiktokSyncEngine.syncAllTikTokData("oauth_callback");
     } catch (syncErr) {
@@ -67,7 +68,12 @@ export class TikTokService {
     }
 
     timer.end("success");
-    return { success: true, status: CONNECTION_STATUS.CONNECTED };
+    return {
+      success: true,
+      status: CONNECTION_STATUS.CONNECTED,
+      tokenData,
+      profile: userProfile,
+    };
   }
 
   /**
@@ -88,8 +94,8 @@ export class TikTokService {
   /**
    * Fetches latest profile (from API with cache fallback in repository)
    */
-  async getProfile() {
-    const accessToken = await tiktokAuth.getValidAccessToken();
+  async getProfile(sessionCookie = null) {
+    const accessToken = await tiktokAuth.getValidAccessToken(sessionCookie);
     if (!accessToken) {
       // Return cached profile if available
       return tiktokRepository.getProfile("primary");
@@ -112,8 +118,8 @@ export class TikTokService {
   /**
    * Fetches videos from TikTok Sandbox API and updates repository
    */
-  async getVideos(maxCount = 20, cursor = 0) {
-    const accessToken = await tiktokAuth.getValidAccessToken();
+  async getVideos(maxCount = 20, cursor = 0, sessionCookie = null) {
+    const accessToken = await tiktokAuth.getValidAccessToken(sessionCookie);
     if (!accessToken) {
       const cached = await tiktokRepository.listVideos(maxCount);
       return { videos: cached, hasMore: false, cursor: 0, fromCache: true };

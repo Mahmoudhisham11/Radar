@@ -112,32 +112,32 @@ export class TikTokAuthService {
   }
 
   /**
-   * Retrieves active connection record from Firestore
+   * Retrieves active connection record from Firestore or Cookie session
    */
-  async getConnection() {
-    return connectionRepository.getTikTokConnection();
+  async getConnection(sessionCookie = null) {
+    return connectionRepository.getTikTokConnection(sessionCookie);
   }
 
   /**
    * Returns sanitized public connection status for frontend
    */
-  async getConnectionStatus() {
-    return connectionRepository.getPublicTikTokStatus();
+  async getConnectionStatus(sessionCookie = null) {
+    return connectionRepository.getPublicTikTokStatus(sessionCookie);
   }
 
   /**
    * Checks whether TikTok is actively connected
    */
-  async isConnected() {
-    const conn = await this.getConnection();
+  async isConnected(sessionCookie = null) {
+    const conn = await this.getConnection(sessionCookie);
     return Boolean(conn && conn.status === CONNECTION_STATUS.CONNECTED && conn.accessToken);
   }
 
   /**
    * Returns a valid access token. Auto-refreshes if within 5 minutes of expiration.
    */
-  async getValidAccessToken() {
-    const connection = await this.getConnection();
+  async getValidAccessToken(sessionCookie = null) {
+    const connection = await this.getConnection(sessionCookie);
     if (!connection || !connection.accessToken) {
       return null;
     }
@@ -154,7 +154,7 @@ export class TikTokAuthService {
         return await this.refreshAccessToken(connection.refreshToken);
       } catch (err) {
         logger.error("Auto-refresh failed inside getValidAccessToken", err);
-        return null;
+        return connection.accessToken; // Fallback to current token
       }
     }
 
@@ -222,7 +222,6 @@ export class TikTokAuthService {
       return payload.access_token;
     } catch (error) {
       timer.error(error);
-      // Mark as requires_reconnection so UI can prompt user clearly
       await connectionRepository.updateStatus("tiktok", CONNECTION_STATUS.REQUIRES_RECONNECTION, error.message);
       throw error;
     }

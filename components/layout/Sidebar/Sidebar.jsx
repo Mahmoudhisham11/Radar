@@ -1,25 +1,59 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./Sidebar.module.css";
 import Badge from "@/components/ui/Badge/Badge";
 
-const NAV_ITEMS = [
-  { label: "مركز القيادة", href: "/", badge: null },
-  { label: "ذكاء التسويق", href: "/intelligence", badge: "AI" },
-  { label: "تيك توك", href: "/tiktok", badge: "Sandbox" },
-  { label: "المحتوى", href: "/content", badge: null },
-  { label: "العملاء", href: "/customers", badge: null },
-  { label: "العملاء المحتملين", href: "/leads", badge: null },
-  { label: "الأهداف والمسار", href: "/goals", badge: null },
-  { label: "اسأل رادار", href: "/ask-radar", badge: "جديد" },
-  { label: "تنبيهات هامة", href: "/attention", badge: "3", badgeVariant: "danger" },
-  { label: "الإعدادات", href: "/settings", badge: null },
-];
-
 export default function Sidebar() {
   const pathname = usePathname();
+  const [unrepliedCount, setUnrepliedCount] = useState(0);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadCommentCount() {
+      try {
+        const res = await fetch("/api/integrations/tiktok/comments", { cache: "no-store" });
+        if (res.ok && isMounted) {
+          const data = await res.json();
+          setUnrepliedCount(data.unrepliedCount || 0);
+        }
+      } catch {}
+    }
+
+    loadCommentCount();
+    const interval = setInterval(loadCommentCount, 15000);
+
+    const handleUpdate = () => loadCommentCount();
+    window.addEventListener("radar:comments_updated", handleUpdate);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+      window.removeEventListener("radar:comments_updated", handleUpdate);
+    };
+  }, []);
+
+  const totalAttentionCount = 2 + unrepliedCount;
+
+  const NAV_ITEMS = [
+    { label: "مركز القيادة", href: "/", badge: null },
+    { label: "ذكاء التسويق", href: "/intelligence", badge: "AI" },
+    { label: "تيك توك", href: "/tiktok", badge: "Sandbox" },
+    { label: "المحتوى", href: "/content", badge: null },
+    { label: "العملاء", href: "/customers", badge: null },
+    { label: "العملاء المحتملين", href: "/leads", badge: null },
+    { label: "الأهداف والمسار", href: "/goals", badge: null },
+    { label: "اسأل رادار", href: "/ask-radar", badge: "جديد" },
+    {
+      label: "تنبيهات هامة",
+      href: "/attention",
+      badge: String(totalAttentionCount),
+      badgeVariant: unrepliedCount > 0 ? "danger" : "warning",
+    },
+    { label: "الإعدادات", href: "/settings", badge: null },
+  ];
 
   return (
     <aside className={styles.sidebar}>

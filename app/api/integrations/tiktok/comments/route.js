@@ -21,11 +21,24 @@ export async function GET() {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { commentId, action } = body;
+    const { commentId, action, text, authorName, videoId, videoTitle } = body;
+
+    // Handle adding a new comment
+    if (action === "add" || (text && !action)) {
+      const newComment = await commentRepository.addComment({
+        text,
+        authorName: authorName || "عميل محتمل",
+        videoId,
+        videoTitle: videoTitle || "فيديو تيك توك",
+      });
+      const allComments = await commentRepository.listComments();
+      const unrepliedCount = allComments.filter((c) => !c.replied).length;
+      return NextResponse.json({ success: true, comment: newComment, unrepliedCount });
+    }
 
     if (!commentId) {
       return NextResponse.json(
-        { error: "commentId is required" },
+        { error: "commentId is required for this action" },
         { status: 400 }
       );
     }
@@ -39,9 +52,9 @@ export async function POST(request) {
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (error) {
-    logger.error("Error updating comment status", error);
+    logger.error("Error handling comment action", error);
     return NextResponse.json(
-      { error: error.message || "Failed to update comment" },
+      { error: error.message || "Failed to process comment action" },
       { status: 500 }
     );
   }

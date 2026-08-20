@@ -24,10 +24,12 @@ export default function TikTokPage() {
     lastError: null,
   });
 
-  const { videos, loading: videosLoading } = useTikTokVideos();
-  const { profile } = useTikTokProfile();
+  const { videos, loading: videosLoading, refetch: refetchVideos } = useTikTokVideos();
+  const { profile, loading: profileLoading, refetch: refetchProfile } = useTikTokProfile();
   const { syncStatus, syncing, triggerSync } = useTikTokSyncStatus();
 
+  const [comments, setComments] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [notice, setNotice] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -39,23 +41,45 @@ export default function TikTokPage() {
       const res = await fetch("/api/integrations/tiktok/status", { cache: "no-store" });
       const data = await res.json();
       setConnection(data);
+      return data;
     } catch (err) {
       setConnection((prev) => ({
         ...prev,
         status: "error",
         lastError: err.message || "فشل في تحميل حالة الاتصال.",
       }));
+      return null;
     }
   }, []);
 
+  // Fetch Comments
+  const fetchComments = useCallback(async () => {
+    try {
+      setCommentsLoading(true);
+      const res = await fetch("/api/integrations/tiktok/comments", { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        setComments(data.comments || []);
+      }
+    } catch (err) {
+      console.error("Failed to load comments:", err);
+    } finally {
+      setCommentsLoading(false);
+    }
+  }, []);
+
+  // Handle Initial Load and OAuth Callback Redirects
   useEffect(() => {
+    let urlStatus = null;
+    let urlError = null;
+
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
-      const urlStatus = urlParams.get("status");
-      const urlError = urlParams.get("error");
+      urlStatus = urlParams.get("status");
+      urlError = urlParams.get("error");
 
       if (urlStatus === "connected") {
-        setNotice("تم ربط حساب تيك توك بنجاح!");
+        setNotice("تم ربط حساب تيك توك بنجاح! جاري مزامنة الفيديوهات والبيانات...");
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
@@ -65,10 +89,18 @@ export default function TikTokPage() {
       }
     }
 
-    fetchStatus();
-  }, [fetchStatus]);
+    fetchStatus().then((statusData) => {
+      if (urlStatus === "connected" || statusData?.status === "connected") {
+        refetchProfile();
+        refetchVideos();
+        fetchComments();
+      }
+    });
 
-  // Compute Real Aggregate Channel Metrics from Real Ingested Videos
+    fetchComments();
+  }, [fetchStatus, refetchProfile, refetchVideos, fetchComments]);
+
+  // Compute Real Aggregate Channel Metrics from Ingested Videos
   const aggregateMetrics = useMemo(() => {
     if (!videos || videos.length === 0) {
       return {
@@ -106,6 +138,11 @@ export default function TikTokPage() {
     setErrorMessage(null);
     try {
       const res = await triggerSync();
+      await fetchStatus();
+      await refetchProfile();
+      await refetchVideos();
+      await fetchComments();
+
       if (res.status === "success") {
         setNotice(
           `تمت المزامنة بنجاح: تم معالجة ${res.videosProcessed || 0} فيديو، وتسجيل ${res.snapshotsCreated || 0} لقطة تحليلية.`
@@ -154,6 +191,7 @@ export default function TikTokPage() {
 
       setNotice("تم تحديث رمز المصادقة بنجاح.");
       await fetchStatus();
+      await refetchProfile();
     } catch (err) {
       setErrorMessage(err.message || "فشل تحديث الرمز. قد يتطلب إعادة الربط.");
       setConnection((prev) => ({
@@ -183,12 +221,32 @@ export default function TikTokPage() {
         throw new Error("فشل إلغاء الربط.");
       }
 
-      setNotice("تم إلغاء ربط حساب تيك توك.");
+      setNotice("تم إلغاء ربط حساب تيك توك بنجاح.");
       await fetchStatus();
     } catch (err) {
       setErrorMessage(err.message || "حدث خطأ أثناء إلغاء الربط.");
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  // Handle Comment Reply
+  const handleMarkReplied = async (commentId) => {
+    try {
+      const res = await fetch("/api/integrations/tiktok/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ commentId, action: "mark_replied" }),
+      });
+
+      if (res.ok) {
+        setComments((prev) =>
+          prev.map((c) => (c.id === commentId ? { ...c, replied: true } : c))
+        );
+        window.dispatchEvent(new CustomEvent("radar:comments_updated"));
+      }
+    } catch (err) {
+      console.error("Failed to reply comment:", err);
     }
   };
 
@@ -242,11 +300,15 @@ export default function TikTokPage() {
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
+  const activeAvatar = profile?.avatarUrl || connection.avatarUrl;
+  const activeDisplayName = profile?.displayName || connection.displayName || "حساب تيك توك";
+  const activeUsername = profile?.username || connection.username || "";
+
   return (
     <div className={styles.page}>
       <Header
         title="تيك توك — مركز البيانات والتحليلات"
-        subtitle="نظرة عامة على الحساب، تحليلات الفيديوهات ومحرك المزامنة الفورية"
+        subtitle="نظرة عامة على الحساب، تحليلات الفيديوهات وإشعارات التفاعل الفورية"
         actions={
           isConnected && (
             <Button
@@ -263,22 +325,25 @@ export default function TikTokPage() {
 
       <div className={styles.content}>
         {/* Notice & Error Banners */}
-        {notice && <div className={styles.noticeBanner}>✓ {notice}</div>}
-
-        {(errorMessage || connection.lastError) && (
-          <div className={styles.errorBanner}>
-            <span>⚠️ {errorMessage || connection.lastError}</span>
-            <Button
-              variant="secondary"
-              size="xs"
-              onClick={() => setErrorMessage(null)}
-            >
+        {notice && (
+          <div className={styles.noticeBanner}>
+            <span>✓ {notice}</span>
+            <Button variant="secondary" size="xs" onClick={() => setNotice(null)}>
               إغلاق
             </Button>
           </div>
         )}
 
-        {/* CONNECTION & REALTIME SYNC STATUS CARD */}
+        {(errorMessage || connection.lastError) && (
+          <div className={styles.errorBanner}>
+            <span>⚠️ {errorMessage || connection.lastError}</span>
+            <Button variant="secondary" size="xs" onClick={() => setErrorMessage(null)}>
+              إغلاق
+            </Button>
+          </div>
+        )}
+
+        {/* CONNECTION & OAUTH STATUS CARD */}
         <div
           className={`${styles.connectionCard} ${
             isConnected
@@ -290,17 +355,17 @@ export default function TikTokPage() {
         >
           <div className={styles.connectionHeader}>
             <div className={styles.connectionLeft}>
-              {connection.avatarUrl || profile?.avatarUrl ? (
+              {activeAvatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={connection.avatarUrl || profile?.avatarUrl}
-                  alt={connection.displayName || profile?.username || "تيك توك"}
+                  src={activeAvatar}
+                  alt={activeDisplayName}
                   className={styles.avatar}
                 />
               ) : (
                 <div className={styles.avatarPlaceholder}>
                   {isConnected
-                    ? (connection.username || profile?.username || "TK").charAt(0).toUpperCase()
+                    ? (activeUsername || "TK").charAt(0).toUpperCase()
                     : "TK"}
                 </div>
               )}
@@ -308,20 +373,22 @@ export default function TikTokPage() {
               <div className={styles.connectionTitleGroup}>
                 <div className={styles.connectionTitleRow}>
                   <div className={getDotClass()} />
-                  <h4 className={styles.connectionTitle}>حساب تيك توك</h4>
+                  <h4 className={styles.connectionTitle}>
+                    {isConnected ? activeDisplayName : "حساب تيك توك"}
+                  </h4>
                   {getStatusBadge()}
-                  {syncing && <Badge variant="warning" size="sm">جاري مزامنة البيانات...</Badge>}
+                  {syncing && <Badge variant="warning" size="sm">جاري المزامنة...</Badge>}
                 </div>
 
                 <p className={styles.connectionSubtitle}>
                   {isConnected && (
                     <span>
-                      {connection.username ? `@${connection.username}` : "حساب تيك توك المرتبط"}
-                      {connection.displayName && ` (${connection.displayName})`}
+                      {activeUsername ? `@${activeUsername}` : "حساب تيك توك المرتبط"}
+                      {activeDisplayName && ` • ${activeDisplayName}`}
                     </span>
                   )}
                   {isDisconnected &&
-                    "قم بربط حساب TikTok Developer Sandbox لتتبع المحتوى والتحليلات مباشرة."}
+                    "قم بربط حساب TikTok Developer Sandbox لتتبع المحتوى، الفيديوهات والتعليقات مباشرة."}
                   {isRefreshing && "جاري تحديث بيانات الاعتماد مع خادم تيك توك..."}
                   {isError && "انتهت صلاحية المصادقة. يرجى إعادة تسجيل الدخول."}
                 </p>
@@ -375,7 +442,7 @@ export default function TikTokPage() {
             </div>
           </div>
 
-          {/* Sync Metadata & Data Freshness */}
+          {/* Sync Metadata */}
           {isConnected && (
             <div className={styles.connectionMeta}>
               <span>تاريخ الربط: {connection.connectedAt ? new Date(connection.connectedAt).toLocaleDateString("ar-EG") : "نشط"}</span>
@@ -387,10 +454,88 @@ export default function TikTokPage() {
                   ? new Date(connection.lastUpdated).toLocaleTimeString("ar-EG")
                   : "الآن"}
               </span>
-              <span>المزامنة التلقائية: كل 15 دقيقة</span>
+              <span>المزامنة التلقائية: مفعلة</span>
             </div>
           )}
         </div>
+
+        {/* DETAILED ACCOUNT PROFILE CARD */}
+        {isConnected && (
+          <div className={styles.profileCard}>
+            <div className={styles.profileTopRow}>
+              <div className={styles.profileUserGroup}>
+                {activeAvatar ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={activeAvatar}
+                    alt={activeDisplayName}
+                    className={styles.profileAvatarLarge}
+                  />
+                ) : (
+                  <div className={styles.profileAvatarPlaceholder}>
+                    {(activeUsername || "T").charAt(0).toUpperCase()}
+                  </div>
+                )}
+
+                <div className={styles.profileDetails}>
+                  <div className={styles.profileNameRow}>
+                    <h3 className={styles.profileDisplayName}>{activeDisplayName}</h3>
+                    {profile?.isVerified && (
+                      <Badge variant="accent" size="xs">موثق ✓</Badge>
+                    )}
+                    <span className={styles.profileHandle}>
+                      {activeUsername ? `@${activeUsername}` : ""}
+                    </span>
+                  </div>
+
+                  {profile?.bioDescription && (
+                    <p className={styles.profileBio}>{profile.bioDescription}</p>
+                  )}
+                </div>
+              </div>
+
+              {profile?.profileDeepLink && (
+                <a
+                  href={profile.profileDeepLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.watchLink}
+                  style={{ fontSize: "12px" }}
+                >
+                  فتح الملف على TikTok ↗
+                </a>
+              )}
+            </div>
+
+            {/* Profile Followers & Account Stats */}
+            <div className={styles.profileStatsGrid}>
+              <div className={styles.profileStatItem}>
+                <span className={styles.profileStatVal}>
+                  {profile?.followerCount ? profile.followerCount.toLocaleString() : "—"}
+                </span>
+                <span className={styles.profileStatLabel}>المتابعون (Followers)</span>
+              </div>
+              <div className={styles.profileStatItem}>
+                <span className={styles.profileStatVal}>
+                  {profile?.followingCount ? profile.followingCount.toLocaleString() : "—"}
+                </span>
+                <span className={styles.profileStatLabel}>يتابع (Following)</span>
+              </div>
+              <div className={styles.profileStatItem}>
+                <span className={styles.profileStatVal}>
+                  {profile?.likesCount ? profile.likesCount.toLocaleString() : aggregateMetrics.totalLikes.toLocaleString()}
+                </span>
+                <span className={styles.profileStatLabel}>إجمالي الإعجابات (Likes)</span>
+              </div>
+              <div className={styles.profileStatItem}>
+                <span className={styles.profileStatVal}>
+                  {profile?.videoCount || videos.length || "0"}
+                </span>
+                <span className={styles.profileStatLabel}>عدد الفيديوهات (Videos)</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* REALTIME CHANNEL METRICS */}
         {isConnected && (
@@ -412,9 +557,9 @@ export default function TikTokPage() {
             <StatCard
               label="إجمالي التعليقات"
               value={videosLoading ? "..." : aggregateMetrics.totalComments.toLocaleString()}
-              change="💬 محادثات"
+              change="💬 استفسارات"
               changeType="neutral"
-              period="استفسارات العملاء المباشرة"
+              period="استفسارات العملاء والطلبات"
             />
             <StatCard
               label="معدل التفاعل العام"
@@ -425,6 +570,86 @@ export default function TikTokPage() {
           </div>
         )}
 
+        {/* RECENT COMMENTS & NOTIFICATIONS PANEL */}
+        {isConnected && (
+          <Card glow={true}>
+            <div className={styles.catalogHeader}>
+              <div className={styles.catalogTitleGroup}>
+                <h3 className={styles.catalogTitle}>💬 التعليقات والتفاعلات المباشرة</h3>
+                <p className={styles.catalogSubtitle}>
+                  إشعارات فورية بالتعليقات الجديدة على الفيديوهات ومتابعة الرد على العملاء
+                </p>
+              </div>
+
+              <div style={{ display: "flex", gap: "8px" }}>
+                <Button variant="secondary" size="xs" onClick={fetchComments}>
+                  تحديث التعليقات 🔄
+                </Button>
+              </div>
+            </div>
+
+            {commentsLoading && comments.length === 0 ? (
+              <div className={styles.emptyState}>
+                <p className={styles.emptyStateTitle}>جاري تحميل التعليقات...</p>
+              </div>
+            ) : comments.length === 0 ? (
+              <div className={styles.emptyState}>
+                <p className={styles.emptyStateTitle}>لا توجد تعليقات جديدة حتى الآن</p>
+                <p className={styles.emptyStateText}>
+                  عندما يكتب أي عميل تعليقاً على فيديوهات التيك توك سيظهر لك هنا وفوراً في جرس الإشعارات.
+                </p>
+              </div>
+            ) : (
+              <div className={styles.commentsList}>
+                {comments.slice(0, 10).map((comment) => (
+                  <div
+                    key={comment.id}
+                    className={`${styles.commentCard} ${
+                      comment.replied ? styles.repliedCard : styles.unrepliedCard
+                    }`}
+                  >
+                    <div className={styles.commentTop}>
+                      <div className={styles.commentAuthor}>
+                        <span>👤 {comment.authorName}</span>
+                        {!comment.replied ? (
+                          <Badge variant="danger" size="xs">في انتظار الرد</Badge>
+                        ) : (
+                          <Badge variant="success" size="xs">تم الرد ✓</Badge>
+                        )}
+                      </div>
+                      <span className={styles.commentTime}>
+                        {comment.timestamp ? new Date(comment.timestamp).toLocaleString("ar-EG") : ""}
+                      </span>
+                    </div>
+
+                    <div className={styles.commentVideoRef}>
+                      <span>📹 {comment.videoTitle || "فيديو تيك توك"}</span>
+                    </div>
+
+                    <p className={styles.commentText}>&ldquo;{comment.text}&rdquo;</p>
+
+                    <div className={styles.commentBottom}>
+                      {!comment.replied ? (
+                        <button
+                          type="button"
+                          className={styles.replyActionBtn}
+                          onClick={() => handleMarkReplied(comment.id)}
+                        >
+                          ✓ تحديد كـ &quot;تم الرد على العميل&quot;
+                        </button>
+                      ) : (
+                        <span style={{ fontSize: "11px", color: "var(--radar-success)" }}>
+                          ✓ تم الرد والمتابعة بنجاح
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+        )}
+
         {/* VIDEO INTELLIGENCE CATALOG */}
         {isConnected && (
           <Card glow={true}>
@@ -432,7 +657,7 @@ export default function TikTokPage() {
               <div className={styles.catalogTitleGroup}>
                 <h3 className={styles.catalogTitle}>سجل ذكاء وتحليلات الفيديوهات</h3>
                 <p className={styles.catalogSubtitle}>
-                  بيانات فورية من قاعدة البيانات • تتحدث تلقائياً مع كل مزامنة جديدة
+                  بيانات فورية من حساب تيك توك • تتحدث تلقائياً مع كل مزامنة جديدة
                 </p>
               </div>
 
@@ -456,7 +681,7 @@ export default function TikTokPage() {
 
             {videosLoading && videos.length === 0 ? (
               <div className={styles.emptyState}>
-                <p className={styles.emptyStateTitle}>جاري تحميل الفيديوهات من قاعدة البيانات...</p>
+                <p className={styles.emptyStateTitle}>جاري تحميل الفيديوهات...</p>
               </div>
             ) : videos.length === 0 ? (
               <div className={styles.emptyState}>

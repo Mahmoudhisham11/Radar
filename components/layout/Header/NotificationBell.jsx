@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import styles from "./NotificationBell.module.css";
 import Badge from "@/components/ui/Badge/Badge";
 
@@ -11,30 +11,31 @@ export default function NotificationBell() {
   const [activeTab, setActiveTab] = useState("pending"); // "pending" | "all"
   const containerRef = useRef(null);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    async function loadNotifications() {
-      try {
-        const res = await fetch("/api/integrations/tiktok/comments", { cache: "no-store" });
-        if (res.ok && isMounted) {
-          const data = await res.json();
-          setComments(data.comments || []);
-          setUnrepliedCount(data.unrepliedCount || 0);
-        }
-      } catch (err) {
-        console.error("Failed to load comment notifications:", err);
+  const loadNotifications = useCallback(async () => {
+    try {
+      const res = await fetch("/api/integrations/tiktok/comments", { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        setComments(data.comments || []);
+        setUnrepliedCount(data.unrepliedCount || 0);
       }
+    } catch (err) {
+      console.error("Failed to load comment notifications:", err);
     }
+  }, []);
 
+  useEffect(() => {
     loadNotifications();
-    const interval = setInterval(loadNotifications, 30000);
+    const interval = setInterval(loadNotifications, 15000);
+
+    const handleRefreshEvent = () => loadNotifications();
+    window.addEventListener("radar:comments_updated", handleRefreshEvent);
 
     return () => {
-      isMounted = false;
       clearInterval(interval);
+      window.removeEventListener("radar:comments_updated", handleRefreshEvent);
     };
-  }, []);
+  }, [loadNotifications]);
 
   // Click outside to close dropdown
   useEffect(() => {
@@ -52,16 +53,7 @@ export default function NotificationBell() {
   }, [isOpen]);
 
   const handleRefresh = async () => {
-    try {
-      const res = await fetch("/api/integrations/tiktok/comments", { cache: "no-store" });
-      if (res.ok) {
-        const data = await res.json();
-        setComments(data.comments || []);
-        setUnrepliedCount(data.unrepliedCount || 0);
-      }
-    } catch (err) {
-      console.error("Failed to refresh comments:", err);
-    }
+    await loadNotifications();
   };
 
   const handleMarkReplied = async (commentId, e) => {
@@ -78,7 +70,8 @@ export default function NotificationBell() {
         setComments((prev) =>
           prev.map((c) => (c.id === commentId ? { ...c, replied: true } : c))
         );
-        setUnrepliedCount(data.unrepliedCount);
+        setUnrepliedCount(data.unrepliedCount || 0);
+        window.dispatchEvent(new CustomEvent("radar:comments_updated"));
       }
     } catch (err) {
       console.error("Failed to mark comment as replied:", err);

@@ -1,6 +1,7 @@
 /**
  * TikTok Sandbox API Layer
- * Isolated for Sandbox-compatible endpoints with full pagination support.
+ * Isolated for Sandbox-compatible endpoints with full pagination support
+ * and progressive scope fallback.
  */
 
 import { TikTokClient } from "../client/tiktokClient";
@@ -8,7 +9,7 @@ import { TIKTOK_ENDPOINTS } from "../schemas/tiktokSchemas";
 import { transformTikTokProfile, transformTikTokVideo } from "../transformers/tiktokTransformers";
 import { logger } from "@/lib/logger";
 
-const USER_FIELDS = [
+const FULL_USER_FIELDS = [
   "open_id",
   "union_id",
   "avatar_url",
@@ -21,6 +22,23 @@ const USER_FIELDS = [
   "following_count",
   "likes_count",
   "video_count",
+].join(",");
+
+const BASIC_USER_FIELDS = [
+  "open_id",
+  "union_id",
+  "avatar_url",
+  "avatar_large_url",
+  "display_name",
+  "bio_description",
+  "profile_deep_link",
+  "is_verified",
+].join(",");
+
+const MINIMAL_USER_FIELDS = [
+  "open_id",
+  "avatar_url",
+  "display_name",
 ].join(",");
 
 const VIDEO_FIELDS = [
@@ -45,16 +63,41 @@ export class TikTokSandboxApi {
   }
 
   /**
-   * Fetches user profile from official TikTok v2 API
+   * Fetches user profile from official TikTok v2 API with progressive scope fallback
    */
   async fetchUserProfile() {
+    // 1. Try full fields (user.info.basic, user.info.profile, user.info.stats)
     try {
-      const url = `${TIKTOK_ENDPOINTS.USER_INFO}?fields=${USER_FIELDS}`;
+      const url = `${TIKTOK_ENDPOINTS.USER_INFO}?fields=${FULL_USER_FIELDS}`;
+      const response = await this.client.request(url, { method: "GET" });
+      const rawUser = response.data?.user || response.data || null;
+      if (rawUser) {
+        return transformTikTokProfile(rawUser);
+      }
+    } catch (err) {
+      logger.warn("Full profile query failed, attempting basic fields fallback...", { error: err.message });
+    }
+
+    // 2. Try basic profile fields
+    try {
+      const url = `${TIKTOK_ENDPOINTS.USER_INFO}?fields=${BASIC_USER_FIELDS}`;
+      const response = await this.client.request(url, { method: "GET" });
+      const rawUser = response.data?.user || response.data || null;
+      if (rawUser) {
+        return transformTikTokProfile(rawUser);
+      }
+    } catch (err) {
+      logger.warn("Basic profile query failed, attempting minimal fields fallback...", { error: err.message });
+    }
+
+    // 3. Try minimal fields
+    try {
+      const url = `${TIKTOK_ENDPOINTS.USER_INFO}?fields=${MINIMAL_USER_FIELDS}`;
       const response = await this.client.request(url, { method: "GET" });
       const rawUser = response.data?.user || response.data || null;
       return transformTikTokProfile(rawUser);
     } catch (error) {
-      logger.error("Failed to fetch TikTok Sandbox user profile", error);
+      logger.error("Failed all profile query attempts", error);
       throw error;
     }
   }
